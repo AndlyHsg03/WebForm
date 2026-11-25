@@ -99,8 +99,11 @@ async function ensureSchema(sql) {
         created timestamptz NOT NULL,
         snapshot jsonb NOT NULL,
         answers jsonb NOT NULL,
-        signature text NOT NULL
+        signature text NOT NULL,
+        submission_token varchar(64)
       )`;
+      await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS submission_token varchar(64)`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS responses_form_submission_token_idx ON responses(form_id, submission_token)`;
     })().catch((error) => {
       schemaReady = undefined;
       throw error;
@@ -184,7 +187,7 @@ function pngSignature(encoded) {
 
 async function backupData(sql) {
   const forms = await sql`SELECT id, title, description, fields, active, revision FROM forms ORDER BY created_at`;
-  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature FROM responses ORDER BY created`;
+  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature, submission_token FROM responses ORDER BY created`;
   const responses = rows.map((row) => ({
     id: row.id,
     form_id: row.form_id,
@@ -192,6 +195,7 @@ async function backupData(sql) {
     snapshot: row.snapshot,
     answers: row.answers,
     signature: PNG_PREFIX + row.signature,
+    submission_token: row.submission_token,
   }));
   return { app: 'FormTanda', version: 1, forms, responses };
 }
@@ -237,12 +241,18 @@ async function handler(req, res) {
       if (!form) throw new HttpError(404, 'Formulir tidak tersedia atau ditutup.');
       if (req.method === 'GET' && !submitPath) return send(res, 200, form);
       if (req.method === 'POST' && submitPath) {
-        const { answers, signature } = validateResponse(form, await readBody(req));
+        const body = await readBody(req);
+        if (typeof body.submissionToken !== 'string' || !/^[a-f0-9]{64}$/.test(body.submissionToken)) throw new HttpError(400, 'Token pengiriman tidak valid. Muat ulang halaman.');
+        const { answers, signature } = validateResponse(form, body);
         const responseId = crypto.randomBytes(12).toString('hex');
         const created = new Date().toISOString();
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature)
-          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signature})`;
-        return send(res, 201, { ok: true, id: responseId });
+        const inserted = await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, submission_token)
+          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signature}, ${body.submissionToken})
+          ON CONFLICT (form_id, submission_token) DO NOTHING RETURNING id`;
+        if (inserted.length) return send(res, 201, { ok: true, id: inserted[0].id });
+        const existing = await sql`SELECT id FROM responses WHERE form_id = ${formId} AND submission_token = ${body.submissionToken}`;
+        if (!existing.length) throw new HttpError(500, 'Respons sebelumnya tidak ditemukan. Coba muat ulang halaman.');
+        return send(res, 200, { ok: true, id: existing[0].id, duplicate: true });
       }
     }
 
@@ -297,6 +307,7 @@ async function handler(req, res) {
       });
       const validatedResponses = backup.responses.map((item) => {
         if (!item || typeof item.id !== 'string' || !/^[a-f0-9]{24}$/.test(item.id) || typeof item.form_id !== 'string' || !/^[a-f0-9]{24}$/.test(item.form_id) || typeof item.created !== 'string' || !item.snapshot || !item.answers || typeof item.signature !== 'string' || !item.signature.startsWith(PNG_PREFIX)) throw new HttpError(400, 'File cadangan tidak valid.');
+        if (item.submission_token != null && (typeof item.submission_token !== 'string' || !/^[a-f0-9]{64}$/.test(item.submission_token))) throw new HttpError(400, 'File cadangan tidak valid.');
         return { ...item, signature: pngSignature(item.signature.slice(PNG_PREFIX.length)) };
       });
       for (const form of validatedForms) {
@@ -306,9 +317,9 @@ async function handler(req, res) {
           active = EXCLUDED.active, revision = EXCLUDED.revision WHERE forms.revision <= EXCLUDED.revision`;
       }
       for (const response of validatedResponses) {
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature)
+        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, submission_token)
           VALUES (${response.id}, ${response.form_id}, ${response.created}, ${JSON.stringify(response.snapshot)}::jsonb,
-          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}) ON CONFLICT (id) DO NOTHING`;
+          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}, ${response.submission_token ?? null}) ON CONFLICT DO NOTHING`;
       }
       return send(res, 200, { ok: true });
     }

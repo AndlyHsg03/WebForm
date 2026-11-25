@@ -94,7 +94,7 @@ async function showLogin(){
 const app=document.querySelector('#app'), topActions=document.querySelector('#top-actions');
 const types={short:'Jawaban pendek',long:'Paragraf',radio:'Pilihan ganda',checkbox:'Kotak centang',select:'Dropdown',date:'Tanggal'};
 function el(tag,props={},...children){const x=document.createElement(tag);for(const [k,v] of Object.entries(props)){if(k==='class')x.className=v;else if(k.startsWith('on'))x.addEventListener(k.slice(2),v);else if(k==='text')x.textContent=v;else if(k in x)x[k]=v;else x.setAttribute(k,v)}for(const c of children.flat()){if(c!==null&&c!==undefined)x.append(c instanceof Node?c:document.createTextNode(String(c)))}return x}
-const card=(...c)=>el('section',{class:'card'},...c), btn=(text,fn,cls='')=>el('button',{type:'button',class:cls,onclick:fn},text), err=()=>el('p',{class:'error',role:'alert'}), actions=(...c)=>el('div',{class:'actions'},...c);
+const card=(...c)=>el('section',{class:'card'},...c), btn=(text,fn,cls='')=>el('button',{type:'button',class:cls,onclick:fn},text==='Isi jawaban lain'?'Selesai':text), err=()=>el('p',{class:'error',role:'alert'}), actions=(...c)=>el('div',{class:'actions'},...c);
 function setPage(...nodes){app.replaceChildren(...nodes);window.scrollTo(0,0)}
 function inputLabel(label,input){return el('label',{},label,input)}
 function uid(){return 'q'+Math.random().toString(36).slice(2)+Date.now().toString(36)}
@@ -111,6 +111,14 @@ async function responses(f){try{const rows=await api('/api/admin/forms/'+f.id+'/
 function display(v){return Array.isArray(v)?v.join(', ')||'—':v||'—'}
 function detail(f,r){setPage(el('div',{class:'bar no-print'},btn('Kembali',()=>responses(f)),btn('Cetak / Simpan PDF',()=>window.print(),'primary')),card(el('h1',{},r.snapshot.title),el('p',{class:'muted'},'ID: '+r.id+' · '+formatDate(r.created)),...r.snapshot.fields.map(q=>el('div',{class:'answer'},el('strong',{},q.label),el('p',{},display(r.answers[q.id])))),el('h3',{},'Tanda tangan'),el('img',{class:'signature-image',src:r.signature,alt:'Tanda tangan responden'})))}
 
+function readSubmissionState(key){try{const value=localStorage.getItem(key);if(value)return value}catch{}try{return sessionStorage.getItem(key)}catch{return null}}
+function writeSubmissionState(key,value){try{localStorage.setItem(key,value);return}catch{}try{sessionStorage.setItem(key,value)}catch{}}
+function getSubmissionToken(fid){const key='formtanda:submission:'+fid,stored=readSubmissionState(key);if(stored&&/^[a-f0-9]{64}$/.test(stored))return stored;const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);const token=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');writeSubmissionState(key,token);return token}
+function showSubmitted(fid){const responseId=readSubmissionState('formtanda:submitted:'+fid);setPage(el('section',{class:'card hero'},el('h1',{},'Jawaban sudah dikirim'),el('p',{},'Formulir ini sudah dikirim dari browser ini. Memuat ulang halaman tidak akan mengirim jawaban baru.'),responseId?el('p',{class:'muted'},'ID respons: '+responseId):null))}
+const apiRequest=api;
+api=async function(path,method='GET',body){const match=path.match(/^\/api\/public\/([a-f0-9]{24})\/submit$/);if(!match||method!=='POST')return apiRequest(path,method,body);const fid=match[1],result=await apiRequest(path,method,{...(body||{}),submissionToken:getSubmissionToken(fid)});if(result.id)writeSubmissionState('formtanda:submitted:'+fid,result.id);return result};
+const renderRespondent=respondent;
+respondent=async function(fid){const responseId=readSubmissionState('formtanda:submitted:'+fid);if(responseId){topActions.replaceChildren();showSubmitted(fid);return}return renderRespondent(fid)};
 async function route(){try{const m=location.hash.match(/^#\/f\/([a-f0-9]{24})$/);if(m){await respondent(m[1]);return}const s=await api('/api/session');if(s.admin)await dashboard();else await showLogin()}catch(e){setPage(card(el('h1',{},'Tidak dapat membuka halaman'),el('p',{class:'error'},e.message),btn('Muat ulang',()=>location.reload())))}}
 addEventListener('hashchange',route);route();
 
