@@ -42,7 +42,7 @@ async function readJsonBody(req) {
 
 async function start() {
   loadEnv();
-  const apiHandler = require('./api/[...path].js');
+  const apiHandler = require('./api/index.js');
   const server = http.createServer(async (req, res) => {
     const pathname = new URL(req.url, `http://${req.headers.host || 'localhost'}`).pathname;
     if (req.method === 'GET' && (pathname === '/' || pathname === '/index.html' || /^\/f\/[a-f0-9]{24}$/.test(pathname))) {
