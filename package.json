@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node --experimental-sqlite server.js",
-    "check": "node --check server.js"
+    "start": "node server.js",
+    "check": "node --check server.js && node --check api/index.js"
   },
   "engines": {
     "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.1"
   }
 }
