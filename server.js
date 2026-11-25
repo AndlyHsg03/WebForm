@@ -29,7 +29,7 @@ async function readJsonBody(req) {
   const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 2200000) throw Object.assign(new Error('Ukuran data terlalu besar.'), { status: 413 });
+    if (size > 4200000) throw Object.assign(new Error('Ukuran data terlalu besar.'), { status: 413 });
     chunks.push(chunk);
   }
   if (!size) return {};

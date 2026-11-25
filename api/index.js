@@ -8,6 +8,8 @@ const CHOICE = new Set(['radio', 'checkbox', 'select']);
 const PNG_PREFIX = 'data:image/png;base64,';
 const COOKIE_NAME = 'formtanda_session';
 const SESSION_SECONDS = 12 * 60 * 60;
+const MAX_PAGES = 10;
+const MAX_BODY = 4200000;
 let schemaReady;
 
 class HttpError extends Error {
@@ -42,8 +44,18 @@ function checkedForm(body) {
     } else {
       options = [];
     }
-    return { id, label: label.trim(), type, required, options };
+    const page = field.page ?? 0;
+    if (!Number.isInteger(page) || page < 0 || page >= MAX_PAGES) throw new HttpError(400, `Halaman tidak valid (maksimal ${MAX_PAGES} halaman).`);
+    return { id, label: label.trim(), type, required, options, page };
   });
+  const pageNumbers = cleanFields.map((field) => field.page);
+  const pageCount = Math.max(...pageNumbers) + 1;
+  for (let i = 0; i < pageNumbers.length; i += 1) {
+    if (i > 0 && pageNumbers[i] < pageNumbers[i - 1]) throw new HttpError(400, 'Urutan halaman tidak valid.');
+  }
+  for (let page = 0; page < pageCount; page += 1) {
+    if (!pageNumbers.includes(page)) throw new HttpError(400, `Halaman ${page + 1} belum punya pertanyaan.`);
+  }
   return { title: title.trim(), description, fields: cleanFields, active };
 }
 
@@ -68,12 +80,25 @@ function validateResponse(form, body) {
     answers[field.id] = value;
   }
 
-  const signature = body.signature;
-  if (typeof signature !== 'string' || !signature.startsWith(PNG_PREFIX) || signature.length > 1500000) throw new HttpError(400, 'Tanda tangan wajib diisi dan harus berupa PNG.');
-  const encoded = signature.slice(PNG_PREFIX.length);
-  const png = Buffer.from(encoded, 'base64');
-  if (png.length < 50 || png.toString('base64') !== encoded || !png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) throw new HttpError(400, 'Tanda tangan tidak valid.');
-  return { answers, signature: encoded };
+  if (typeof body.name !== 'string' || !body.name.trim() || body.name.trim().length > 200) throw new HttpError(400, 'Nama wajib diisi (maksimal 200 karakter).');
+  const name = body.name.trim();
+
+  const pageCount = formPageCount(form);
+  let signatures = body.signatures;
+  if (signatures === undefined && typeof body.signature === 'string' && pageCount === 1) signatures = [body.signature];
+  if (!Array.isArray(signatures) || signatures.length !== pageCount) throw new HttpError(400, 'Tanda tangan wajib diisi pada setiap halaman.');
+  const encodedSignatures = signatures.map((signature, index) => {
+    if (typeof signature !== 'string' || !signature.startsWith(PNG_PREFIX) || signature.length > 1500000) throw new HttpError(400, `Tanda tangan halaman ${index + 1} wajib diisi dan harus berupa PNG.`);
+    const encoded = signature.slice(PNG_PREFIX.length);
+    const png = Buffer.from(encoded, 'base64');
+    if (png.length < 50 || png.toString('base64') !== encoded || !png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) throw new HttpError(400, `Tanda tangan halaman ${index + 1} tidak valid.`);
+    return encoded;
+  });
+  return { answers, name, signatures: encodedSignatures };
+}
+
+function formPageCount(form) {
+  return Math.max(0, ...form.fields.map((field) => field.page ?? 0)) + 1;
 }
 
 function createSql() {
@@ -101,6 +126,8 @@ async function ensureSchema(sql) {
         answers jsonb NOT NULL,
         signature text NOT NULL
       )`;
+      await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS name text NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS signatures jsonb NOT NULL DEFAULT '[]'::jsonb`;
     })().catch((error) => {
       schemaReady = undefined;
       throw error;
@@ -171,7 +198,7 @@ async function readBody(req) {
     }
   }
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw new HttpError(400, 'Data tidak valid.');
-  if (Buffer.byteLength(JSON.stringify(body)) > 2200000) throw new HttpError(413, 'Ukuran data terlalu besar.');
+  if (Buffer.byteLength(JSON.stringify(body)) > MAX_BODY) throw new HttpError(413, 'Ukuran data terlalu besar.');
   return body;
 }
 
@@ -182,18 +209,25 @@ function pngSignature(encoded) {
   return encoded;
 }
 
-async function backupData(sql) {
-  const forms = await sql`SELECT id, title, description, fields, active, revision FROM forms ORDER BY created_at`;
-  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature FROM responses ORDER BY created`;
-  const responses = rows.map((row) => ({
+function publicResponse(row) {
+  const list = Array.isArray(row.signatures) && row.signatures.length ? row.signatures : [row.signature];
+  return {
     id: row.id,
     form_id: row.form_id,
     created: row.created instanceof Date ? row.created.toISOString() : row.created,
     snapshot: row.snapshot,
     answers: row.answers,
+    name: row.name || '',
     signature: PNG_PREFIX + row.signature,
-  }));
-  return { app: 'FormTanda', version: 1, forms, responses };
+    signatures: list.map((item) => PNG_PREFIX + item),
+  };
+}
+
+async function backupData(sql) {
+  const forms = await sql`SELECT id, title, description, fields, active, revision FROM forms ORDER BY created_at`;
+  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, signatures FROM responses ORDER BY created`;
+  const responses = rows.map(publicResponse);
+  return { app: 'FormTanda', version: 2, forms, responses };
 }
 
 async function handler(req, res) {
@@ -237,11 +271,11 @@ async function handler(req, res) {
       if (!form) throw new HttpError(404, 'Formulir tidak tersedia atau ditutup.');
       if (req.method === 'GET' && !submitPath) return send(res, 200, form);
       if (req.method === 'POST' && submitPath) {
-        const { answers, signature } = validateResponse(form, await readBody(req));
+        const { answers, name, signatures } = validateResponse(form, await readBody(req));
         const responseId = crypto.randomBytes(12).toString('hex');
         const created = new Date().toISOString();
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature)
-          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signature})`;
+        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, signatures)
+          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signatures[0]}, ${name}, ${JSON.stringify(signatures)}::jsonb)`;
         return send(res, 201, { ok: true, id: responseId });
       }
     }
@@ -278,12 +312,8 @@ async function handler(req, res) {
         return send(res, 200, { ok: true });
       }
       if (req.method === 'GET' && suffix === '/responses') {
-        const responses = await sql`SELECT id, form_id, created, snapshot, answers, signature FROM responses WHERE form_id = ${formId} ORDER BY created DESC`;
-        return send(res, 200, responses.map((row) => ({
-          ...row,
-          created: row.created instanceof Date ? row.created.toISOString() : row.created,
-          signature: PNG_PREFIX + row.signature,
-        })));
+        const responses = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, signatures FROM responses WHERE form_id = ${formId} ORDER BY created DESC`;
+        return send(res, 200, responses.map(publicResponse));
       }
     }
 
@@ -297,7 +327,14 @@ async function handler(req, res) {
       });
       const validatedResponses = backup.responses.map((item) => {
         if (!item || typeof item.id !== 'string' || !/^[a-f0-9]{24}$/.test(item.id) || typeof item.form_id !== 'string' || !/^[a-f0-9]{24}$/.test(item.form_id) || typeof item.created !== 'string' || !item.snapshot || !item.answers || typeof item.signature !== 'string' || !item.signature.startsWith(PNG_PREFIX)) throw new HttpError(400, 'File cadangan tidak valid.');
-        return { ...item, signature: pngSignature(item.signature.slice(PNG_PREFIX.length)) };
+        const signature = pngSignature(item.signature.slice(PNG_PREFIX.length));
+        const rawList = Array.isArray(item.signatures) && item.signatures.length ? item.signatures : [item.signature];
+        const signatures = rawList.map((entry) => {
+          if (typeof entry !== 'string' || !entry.startsWith(PNG_PREFIX)) throw new HttpError(400, 'File cadangan tidak valid.');
+          return pngSignature(entry.slice(PNG_PREFIX.length));
+        });
+        const name = typeof item.name === 'string' ? item.name.slice(0, 200) : '';
+        return { ...item, signature, signatures, name };
       });
       for (const form of validatedForms) {
         await sql`INSERT INTO forms (id, title, description, fields, active, revision)
@@ -306,17 +343,19 @@ async function handler(req, res) {
           active = EXCLUDED.active, revision = EXCLUDED.revision WHERE forms.revision <= EXCLUDED.revision`;
       }
       for (const response of validatedResponses) {
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature)
+        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, signatures)
           VALUES (${response.id}, ${response.form_id}, ${response.created}, ${JSON.stringify(response.snapshot)}::jsonb,
-          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}) ON CONFLICT (id) DO NOTHING`;
+          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}, ${response.name}, ${JSON.stringify(response.signatures)}::jsonb) ON CONFLICT (id) DO NOTHING`;
       }
       return send(res, 200, { ok: true });
     }
 
-    const signatureMatch = pathname.match(/^\/api\/admin\/signature\/([a-f0-9]{24})$/);
+    const signatureMatch = pathname.match(/^\/api\/admin\/signature\/([a-f0-9]{24})(?:\/(\d{1,2}))?$/);
     if (signatureMatch && req.method === 'GET') {
-      const rows = await sql`SELECT signature FROM responses WHERE id = ${signatureMatch[1]}`;
-      if (rows[0]) return send(res, 200, Buffer.from(rows[0].signature, 'base64'));
+      const rows = await sql`SELECT signature, signatures FROM responses WHERE id = ${signatureMatch[1]}`;
+      const page = Number(signatureMatch[2] || 0);
+      const list = rows[0] && Array.isArray(rows[0].signatures) && rows[0].signatures.length ? rows[0].signatures : rows[0] ? [rows[0].signature] : [];
+      if (list[page]) return send(res, 200, Buffer.from(list[page], 'base64'));
     }
 
     throw new HttpError(404, 'Halaman tidak ditemukan.');
