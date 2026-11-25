@@ -4,32 +4,16 @@
 </style></head>
 <body><header><div class="brand">Form<span>Tanda</span></div><div id="top-actions"></div></header>
 <main id="app" aria-live="polite"></main>
-<footer>FormTanda · Formulir &amp; tanda tangan elektronik · Data tersimpan di browser ini</footer>
+<footer>FormTanda · Formulir &amp; tanda tangan elektronik · Data tersimpan di server</footer>
 <script>
 'use strict';
-/* ===== Penyimpanan lokal (pengganti server Python + SQLite) ===== */
-const DB={idb:null,mem:{}};
-function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('formtanda',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
-const ready=(async()=>{try{DB.idb=await idbOpen()}catch{DB.idb=null}})();
-function kvGet(k){if(!DB.idb)return Promise.resolve(DB.mem[k]);return new Promise((res,rej)=>{const q=DB.idb.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
-function kvSet(k,v){if(!DB.idb){DB.mem[k]=v;return Promise.resolve()}return new Promise((res,rej)=>{const t=DB.idb.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
-async function load(){return{forms:(await kvGet('forms'))||[],responses:(await kvGet('responses'))||[],pw:(await kvGet('pw'))||null}}
-
-/* ===== Utilitas ===== */
-const rnd=n=>{const a=new Uint8Array(n);crypto.getRandomValues(a);return[...a].map(b=>b.toString(16).padStart(2,'0')).join('')};
-const hexBytes=h=>Uint8Array.from(h.match(/../g),x=>parseInt(x,16));
-async function hashPw(pw,saltHex){
-  if(window.crypto&&crypto.subtle){
-    const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
-    const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:hexBytes(saltHex),iterations:200000,hash:'SHA-256'},key,256);
-    return[...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-  let h=0x811c9dc5;const s=saltHex+pw;
-  for(let r=0;r<2000;r++)for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}
-  return'x'+h.toString(16);
+/* ===== API server ===== */
+async function api(path,method='GET',body){
+  const response=await fetch(path,{method,credentials:'same-origin',headers:body===undefined?{}:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'Permintaan gagal.');
+  return data;
 }
-let adminOn=false;try{adminOn=sessionStorage.getItem('ft_admin')==='1'}catch{}
-function setAdmin(v){adminOn=v;try{v?sessionStorage.setItem('ft_admin','1'):sessionStorage.removeItem('ft_admin')}catch{}}
 function download(text,name,mime){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([text],{type:mime}));a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 
 /* ===== Validasi (port dari app.py) ===== */
@@ -75,60 +59,6 @@ function validateResponse(form,body){
 const safeCsv=v=>{v=Array.isArray(v)?v.join('; '):String(v);return/^\s*[=+\-@]/.test(v)||/^[\t\r\n]/.test(v)?"'"+v:v};
 const csvCell=v=>'"'+String(v).replace(/"/g,'""')+'"';
 
-/* ===== "API" lokal: menggantikan fetch ke server ===== */
-async function api(path,method='GET',body){
-  await ready;const s=await load();let m;
-  if(path==='/api/session')return{admin:adminOn,setup:!s.pw};
-  if(path==='/api/setup'&&method==='POST'){
-    if(s.pw)throw new Error('Password sudah dibuat.');
-    const pw=body.password;if(typeof pw!=='string'||pw.length<8)throw new Error('Minimal 8 karakter.');
-    const salt=rnd(16);await kvSet('pw',{salt,hash:await hashPw(pw,salt)});setAdmin(true);return{ok:true};
-  }
-  if(path==='/api/login'&&method==='POST'){
-    if(!s.pw)throw new Error('Password belum dibuat.');
-    const pw=body.password;if(typeof pw!=='string'||pw.length>1000)throw new Error('Password tidak valid.');
-    if(await hashPw(pw,s.pw.salt)!==s.pw.hash)throw new Error('Password salah.');
-    setAdmin(true);return{ok:true};
-  }
-  if(path==='/api/logout'){setAdmin(false);return{ok:true}}
-  if(m=path.match(/^\/api\/public\/([a-f0-9]{24})(\/submit)?$/)){
-    const form=s.forms.find(f=>f.id===m[1]&&f.active);
-    if(!form)throw new Error('Formulir tidak tersedia atau ditutup.');
-    if(method==='GET'&&!m[2])return form;
-    if(method==='POST'&&m[2]){
-      const answers=validateResponse(form,body),id=rnd(12);
-      s.responses.push({id,form_id:form.id,created:new Date().toISOString(),snapshot:form,answers,signature:body.signature});
-      await kvSet('responses',s.responses);return{ok:true,id};
-    }
-  }
-  if(path.startsWith('/api/admin/')){
-    if(!adminOn)throw new Error('Silakan login admin.');
-    if(path==='/api/admin/forms'){
-      if(method==='GET')return[...s.forms].reverse().map(f=>({...f,count:s.responses.filter(r=>r.form_id===f.id).length}));
-      if(method==='POST'){const id=rnd(12);s.forms.push({id,...checkedForm(body),revision:1});await kvSet('forms',s.forms);return{id}}
-    }
-    if(m=path.match(/^\/api\/admin\/forms\/([a-f0-9]{24})(\/responses)?$/)){
-      const i=s.forms.findIndex(f=>f.id===m[1]);if(i<0)throw new Error('Formulir tidak ditemukan.');
-      if(method==='PUT'&&!m[2]){s.forms[i]={...s.forms[i],...checkedForm(body),revision:s.forms[i].revision+1};await kvSet('forms',s.forms);return{ok:true}}
-      if(method==='GET'&&m[2])return s.responses.filter(r=>r.form_id===m[1]).reverse();
-    }
-    if(path==='/api/admin/backup')return{app:'FormTanda',version:1,forms:s.forms,responses:s.responses};
-    if(path==='/api/admin/restore'&&method==='POST'){
-      if(body.app!=='FormTanda'||!Array.isArray(body.forms)||!Array.isArray(body.responses))throw new Error('File cadangan tidak valid.');
-      for(const f of body.forms){
-        if(typeof f.id!=='string'||!/^[a-f0-9]{24}$/.test(f.id)||!Number.isInteger(f.revision))throw new Error('File cadangan tidak valid.');
-        const c=checkedForm(f),i=s.forms.findIndex(x=>x.id===f.id),nf={id:f.id,...c,revision:f.revision};
-        if(i<0)s.forms.push(nf);else if(f.revision>=s.forms[i].revision)s.forms[i]=nf;
-      }
-      for(const r of body.responses){
-        if(!r||typeof r.id!=='string'||!/^[a-f0-9]{24}$/.test(r.id)||typeof r.form_id!=='string'||typeof r.created!=='string'||!r.snapshot||!r.answers||typeof r.signature!=='string'||!r.signature.startsWith(PNG_PREFIX))throw new Error('File cadangan tidak valid.');
-        if(!s.responses.some(x=>x.id===r.id))s.responses.push({id:r.id,form_id:r.form_id,created:r.created,snapshot:r.snapshot,answers:r.answers,signature:r.signature});
-      }
-      await kvSet('forms',s.forms);await kvSet('responses',s.responses);return{ok:true};
-    }
-  }
-  throw new Error('Halaman tidak ditemukan.');
-}
 async function downloadCsv(f){
   try{
     const rows=await api('/api/admin/forms/'+f.id+'/responses');
@@ -145,23 +75,20 @@ function backupBar(){
     ev.target.value='';
   }});
   return el('div',{class:'card'},
-    el('p',{class:'muted'},'Data tersimpan hanya di browser ini. Cadangkan secara berkala agar tidak hilang jika data browser dibersihkan.'),
+    el('p',{class:'muted'},'Data formulir dan respons tersimpan di server. Cadangkan secara berkala.'),
     actions(btn('Cadangkan data',async()=>{try{download(JSON.stringify(await api('/api/admin/backup')),'cadangan-formtanda-'+new Date().toISOString().slice(0,10)+'.json','application/json')}catch(e){alert(e.message)}}),btn('Pulihkan data',()=>file.click()),file));
 }
 async function showLogin(){
   topActions.replaceChildren();
-  const setup=(await api('/api/session')).setup;
-  const pw=el('input',{type:'password',required:true,autocomplete:setup?'new-password':'current-password',placeholder:setup?'Password baru (min. 8 karakter)':'Password admin'});
-  const pw2=setup?el('input',{type:'password',required:true,autocomplete:'new-password',placeholder:'Ulangi password'}):null;
-  const e=err(),submit=el('button',{type:'submit',class:'primary'},setup?'Buat password & masuk':'Masuk');
+  const pw=el('input',{type:'password',required:true,autocomplete:'current-password',placeholder:'Password akses'});
+  const e=err(),submit=el('button',{type:'submit',class:'primary'},'Masuk');
   const f=el('form',{onsubmit:async ev=>{ev.preventDefault();submit.disabled=true;e.textContent='';
     try{
-      if(setup){if(pw.value.length<8)throw new Error('Minimal 8 karakter.');if(pw.value!==pw2.value)throw new Error('Password tidak sama.');await api('/api/setup','POST',{password:pw.value})}
-      else await api('/api/login','POST',{password:pw.value});
-      await dashboard();
+      await api('/api/login','POST',{password:pw.value});
+      await route();
     }catch(ex){e.textContent=ex.message}finally{submit.disabled=false}}},
-    inputLabel(setup?'Buat password admin':'Password admin',pw),pw2?inputLabel('Ulangi password',pw2):null,submit,e);
-  setPage(el('section',{class:'card hero'},el('h1',{},setup?'Pengaturan awal':'Masuk sebagai admin'),el('p',{},setup?'Buat password untuk mengelola formulir di browser ini.':'Buat formulir online dengan tanda tangan di bagian akhir.'),f));
+    inputLabel('Password akses',pw),submit,e);
+  setPage(el('section',{class:'card hero'},el('h1',{},'Masuk'),el('p',{},'Masukkan password akses untuk membuka FormTanda.'),f));
 }
 
 const app=document.querySelector('#app'), topActions=document.querySelector('#top-actions');
@@ -184,7 +111,7 @@ async function responses(f){try{const rows=await api('/api/admin/forms/'+f.id+'/
 function display(v){return Array.isArray(v)?v.join(', ')||'—':v||'—'}
 function detail(f,r){setPage(el('div',{class:'bar no-print'},btn('Kembali',()=>responses(f)),btn('Cetak / Simpan PDF',()=>window.print(),'primary')),card(el('h1',{},r.snapshot.title),el('p',{class:'muted'},'ID: '+r.id+' · '+formatDate(r.created)),...r.snapshot.fields.map(q=>el('div',{class:'answer'},el('strong',{},q.label),el('p',{},display(r.answers[q.id])))),el('h3',{},'Tanda tangan'),el('img',{class:'signature-image',src:r.signature,alt:'Tanda tangan responden'})))}
 
-async function route(){try{const m=location.hash.match(/^#\/f\/([a-f0-9]{24})$/);if(m)await respondent(m[1]);else{const s=await api('/api/session');if(s.admin)await dashboard();else await showLogin()}}catch(e){setPage(card(el('h1',{},'Tidak dapat membuka halaman'),el('p',{class:'error'},e.message),btn('Muat ulang',()=>location.reload())))}}
+async function route(){try{const s=await api('/api/session');if(!s.admin){await showLogin();return}const m=location.hash.match(/^#\/f\/([a-f0-9]{24})$/);if(m)await respondent(m[1]);else await dashboard()}catch(e){setPage(card(el('h1',{},'Tidak dapat membuka halaman'),el('p',{class:'error'},e.message),btn('Muat ulang',()=>location.reload())))}}
 addEventListener('hashchange',route);route();
 
 </script></body></html>
