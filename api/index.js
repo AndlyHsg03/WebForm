@@ -227,13 +227,10 @@ async function handler(req, res) {
       const secure = process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
       return send(res, 200, { ok: true }, { 'Set-Cookie': `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secure}` });
     }
-    requireAdmin(req);
-
-    const sql = createSql();
-    await ensureSchema(sql);
-
     const publicMatch = pathname.match(/^\/api\/public\/([a-f0-9]{24})(\/submit)?$/);
     if (publicMatch) {
+      const sql = createSql();
+      await ensureSchema(sql);
       const [, formId, submitPath] = publicMatch;
       const rows = await sql`SELECT id, title, description, fields, active, revision FROM forms WHERE id = ${formId} AND active = true`;
       const form = rows[0];
@@ -248,6 +245,11 @@ async function handler(req, res) {
         return send(res, 201, { ok: true, id: responseId });
       }
     }
+
+    requireAdmin(req);
+
+  const sql = createSql();
+  await ensureSchema(sql);
 
     if (pathname === '/api/admin/forms' && req.method === 'GET') {
       const forms = await sql`SELECT f.id, f.title, f.description, f.fields, f.active, f.revision,

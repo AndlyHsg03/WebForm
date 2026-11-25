@@ -111,7 +111,7 @@ async function responses(f){try{const rows=await api('/api/admin/forms/'+f.id+'/
 function display(v){return Array.isArray(v)?v.join(', ')||'—':v||'—'}
 function detail(f,r){setPage(el('div',{class:'bar no-print'},btn('Kembali',()=>responses(f)),btn('Cetak / Simpan PDF',()=>window.print(),'primary')),card(el('h1',{},r.snapshot.title),el('p',{class:'muted'},'ID: '+r.id+' · '+formatDate(r.created)),...r.snapshot.fields.map(q=>el('div',{class:'answer'},el('strong',{},q.label),el('p',{},display(r.answers[q.id])))),el('h3',{},'Tanda tangan'),el('img',{class:'signature-image',src:r.signature,alt:'Tanda tangan responden'})))}
 
-async function route(){try{const s=await api('/api/session');if(!s.admin){await showLogin();return}const m=location.hash.match(/^#\/f\/([a-f0-9]{24})$/);if(m)await respondent(m[1]);else await dashboard()}catch(e){setPage(card(el('h1',{},'Tidak dapat membuka halaman'),el('p',{class:'error'},e.message),btn('Muat ulang',()=>location.reload())))}}
+async function route(){try{const m=location.hash.match(/^#\/f\/([a-f0-9]{24})$/);if(m){await respondent(m[1]);return}const s=await api('/api/session');if(s.admin)await dashboard();else await showLogin()}catch(e){setPage(card(el('h1',{},'Tidak dapat membuka halaman'),el('p',{class:'error'},e.message),btn('Muat ulang',()=>location.reload())))}}
 addEventListener('hashchange',route);route();
 
 </script></body></html>
