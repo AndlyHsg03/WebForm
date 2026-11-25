@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FormTanda</title>
-<style>:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202132;background:#f3f1f9;font-size:16px;--accent:#6143b5;--line:#dedbe8}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:16px max(20px,calc((100vw - 1000px)/2));gap:12px}.brand{font-size:22px;font-weight:800;letter-spacing:-.7px}.brand span{color:var(--accent)}main{max-width:760px;margin:28px auto;padding:0 15px}footer{text-align:center;color:#777287;font-size:12px;padding:20px}h1{font-size:clamp(24px,5vw,34px);line-height:1.15;margin:0 0 10px}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:8px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px;box-shadow:0 2px 6px #2d1c6210}.hero{border-top:7px solid var(--accent)}.bar,.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.bar{justify-content:space-between;margin-bottom:16px}.muted,small{color:#6c687c;font-size:13px}.required,.error{color:#b3261e}.error{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;font-weight:550;margin-bottom:8px}input:not([type=checkbox]):not([type=radio]),textarea,select{width:100%;font:inherit;padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;color:#202132;margin:5px 0 12px}input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8466e4;outline-offset:2px}textarea{resize:vertical;min-height:80px}button,.btn{border:1px solid var(--line);border-radius:7px;padding:9px 14px;background:white;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;white-space:normal}button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:white}button:disabled{opacity:.55;cursor:wait}button.danger{color:#a52d25}.choice{display:flex;align-items:center;gap:10px;font-weight:400;margin:12px 0;overflow-wrap:anywhere}input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{font-size:12px;background:#efedf5;border-radius:12px;padding:4px 9px;color:#605773}.sig{width:100%;height:190px;background:white;border:1px dashed #aaa4b7;border-radius:8px;touch-action:none;cursor:crosshair;display:block;margin:12px 0}.signature-image{max-width:100%;max-height:190px;border:1px solid var(--line);border-radius:8px;background:#fff;display:block}.question-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}.answer{border-bottom:1px solid var(--line);padding:8px 0}.answer:last-child{border:0}.answer p{margin:4px 0 8px}.empty{text-align:center;padding:35px 20px}.spacer{height:10px}.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 12px;padding-top:6px;border-top:2px solid var(--line)}.page-head h2{margin:0}.step-info{margin:0 0 12px;font-weight:600}.nav{margin:6px 0 24px}.page-title{margin:20px 0 6px;color:var(--accent)}@media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:17px}main{margin-top:16px}.sig{height:170px}}@media print{header,footer,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;break-inside:avoid}body{background:white}}
+<style>:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202132;background:#f3f1f9;font-size:16px;--accent:#6143b5;--line:#dedbe8}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:16px max(20px,calc((100vw - 1000px)/2));gap:12px}.brand{font-size:22px;font-weight:800;letter-spacing:-.7px}.brand span{color:var(--accent)}main{max-width:760px;margin:28px auto;padding:0 15px}footer{text-align:center;color:#777287;font-size:12px;padding:20px}h1{font-size:clamp(24px,5vw,34px);line-height:1.15;margin:0 0 10px}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:8px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px;box-shadow:0 2px 6px #2d1c6210}.hero{border-top:7px solid var(--accent)}.bar,.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.bar{justify-content:space-between;margin-bottom:16px}.muted,small{color:#6c687c;font-size:13px}.required,.error{color:#b3261e}.error{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;font-weight:550;margin-bottom:8px}input:not([type=checkbox]):not([type=radio]),textarea,select{width:100%;font:inherit;padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;color:#202132;margin:5px 0 12px}input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8466e4;outline-offset:2px}textarea{resize:vertical;min-height:80px}button,.btn{border:1px solid var(--line);border-radius:7px;padding:9px 14px;background:white;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;white-space:normal}button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:white}button:disabled{opacity:.55;cursor:wait}button.danger{color:#a52d25}.choice{display:flex;align-items:center;gap:10px;font-weight:400;margin:12px 0;overflow-wrap:anywhere}input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{font-size:12px;background:#efedf5;border-radius:12px;padding:4px 9px;color:#605773}.sig{width:100%;height:190px;background:white;border:1px dashed #aaa4b7;border-radius:8px;touch-action:none;cursor:crosshair;display:block;margin:12px 0}.signature-image{max-width:100%;max-height:190px;border:1px solid var(--line);border-radius:8px;background:#fff;display:block}.question-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}.answer{border-bottom:1px solid var(--line);padding:8px 0}.answer:last-child{border:0}.answer p{margin:4px 0 8px}.empty{text-align:center;padding:35px 20px}.spacer{height:10px}.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 12px;padding-top:6px;border-top:2px solid var(--line)}.page-head h2{margin:0}.step-info{margin:0 0 12px;font-weight:600}.nav{margin:6px 0 24px}.page-title{margin:20px 0 6px;color:var(--accent)}
+.divider{border:0;border-top:1px solid var(--line);margin:14px 0}.q-title{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line)}.agree-line{display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:400;line-height:1.45;margin:4px 2px 14px;cursor:pointer}.agree-line input{width:14px;height:14px;margin:2px 0 0;flex:none}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:17px}main{margin-top:16px}.sig{height:170px}}@media print{header,footer,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;break-inside:avoid}body{background:white}}
 </style></head>
 <body><header><div class="brand">Form<span>Tanda</span></div><div id="top-actions"></div></header>
 <main id="app" aria-live="polite"></main>
@@ -62,8 +64,8 @@ const csvCell=v=>'"'+String(v).replace(/"/g,'""')+'"';
 async function downloadCsv(f){
   try{
     const rows=await api('/api/admin/forms/'+f.id+'/responses');
-    const out=[['ID respons','Waktu UTC','Nama','Versi formulir','Halaman','Pertanyaan','Jawaban','Tanda tangan']];
-    for(const r of rows)for(const q of r.snapshot.fields)out.push([r.id,r.created,safeCsv(r.name||''),r.snapshot.revision,(q.page||0)+1,safeCsv(q.label),safeCsv(r.answers[q.id]??''),'Tersimpan (lihat di aplikasi)']);
+    const out=[['ID respons','Waktu UTC','Nama','Jabatan/Divisi','Versi formulir','Halaman','Pertanyaan','Jawaban','Tanda tangan']];
+    for(const r of rows)for(const q of r.snapshot.fields)out.push([r.id,r.created,safeCsv(r.name||''),safeCsv(r.position||''),r.snapshot.revision,(q.page||0)+1,safeCsv(q.label),safeCsv(r.answers[q.id]??''),'Tersimpan (lihat di aplikasi)']);
     download('\ufeff'+out.map(r=>r.map(csvCell).join(',')).join('\r\n'),'jawaban.csv','text/csv;charset=utf-8');
   }catch(e){alert(e.message)}
 }
@@ -163,7 +165,7 @@ function editor(original){
     for(let p=0;p<count;p++){
       const inPage=model.fields.filter(f=>f.page===p);
       nodes.push(el('div',{class:'page-head'},el('h2',{},'Halaman '+(p+1)+(count>1?' dari '+count:'')),count>1?btn('Hapus halaman',()=>removePage(p),'danger'):null));
-      if(p===0)nodes.push(card(el('h3',{},'Nama responden (wajib)'),el('p',{class:'muted'},'Otomatis tampil di halaman 1, tepat di bawah judul dan deskripsi formulir.')));
+      if(p===0)nodes.push(card(el('h3',{},'Nama dan Jabatan/Divisi responden (wajib)'),el('p',{class:'muted'},'Otomatis tampil di halaman 1, tepat di bawah judul dan deskripsi formulir.')));
       inPage.forEach((f,i)=>nodes.push(questionCard(f,i+1,inPage.length,i)));
       nodes.push(actions(btn('+ Tambah pertanyaan',()=>addQuestion(p))));
       nodes.push(el('div',{class:'spacer'}));
@@ -186,7 +188,7 @@ function editor(original){
     el('section',{class:'card hero'},inputLabel('Judul formulir',title),inputLabel('Deskripsi',description),el('label',{class:'choice'},active,'Terima jawaban (formulir aktif)')),
     list,el('div',{class:'spacer'}),actions(save,btn('Batal',dashboard)),e);
 }
-function signaturePad(title='Tanda tangan'){const c=el('canvas',{class:'sig',width:1000,height:380,'aria-label':'Area tanda tangan'}), ctx=c.getContext('2d');let strokes=[],cur=null,pointer=null;function pos(ev){const r=c.getBoundingClientRect();return [(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]}function redraw(){ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle='#202132';for(const s of strokes){ctx.beginPath();if(s.length===1){ctx.arc(s[0][0],s[0][1],2.5,0,Math.PI*2);ctx.fill()}else{ctx.moveTo(...s[0]);s.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke()}}}c.addEventListener('pointerdown',ev=>{if(cur||ev.button!==0)return;ev.preventDefault();pointer=ev.pointerId;c.setPointerCapture(pointer);cur=[pos(ev)];strokes.push(cur);redraw()});c.addEventListener('pointermove',ev=>{if(cur&&ev.pointerId===pointer){cur.push(pos(ev));redraw()}});function end(ev){if(ev.pointerId===pointer){cur=null;pointer=null}}for(const evt of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(evt,end);const ui=card(el('h3',{},title+' ',el('span',{class:'required'},'*')),el('p',{class:'muted'},'Gunakan mouse atau jari untuk tanda tangan.'),c,actions(btn('Urungkan',()=>{strokes.pop();cur=null;redraw()}),btn('Hapus',()=>{strokes=[];cur=null;redraw()})));return {ui,valid:()=>strokes.some(s=>s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>4)),data:()=>c.toDataURL('image/png')}}
+function signaturePad(title='Tanda tangan'){const c=el('canvas',{class:'sig',width:1000,height:380,'aria-label':'Area tanda tangan'}), ctx=c.getContext('2d');let strokes=[],cur=null,pointer=null;function pos(ev){const r=c.getBoundingClientRect();return [(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]}function redraw(){ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle='#202132';for(const s of strokes){ctx.beginPath();if(s.length===1){ctx.arc(s[0][0],s[0][1],2.5,0,Math.PI*2);ctx.fill()}else{ctx.moveTo(...s[0]);s.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke()}}}c.addEventListener('pointerdown',ev=>{if(cur||ev.button!==0)return;ev.preventDefault();pointer=ev.pointerId;c.setPointerCapture(pointer);cur=[pos(ev)];strokes.push(cur);redraw()});c.addEventListener('pointermove',ev=>{if(cur&&ev.pointerId===pointer){cur.push(pos(ev));redraw()}});function end(ev){if(ev.pointerId===pointer){cur=null;pointer=null}}for(const evt of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(evt,end);const ui=card(el('h3',{class:'q-title'},title+' ',el('span',{class:'required'},'*')),el('p',{class:'muted'},'Gunakan mouse atau jari untuk tanda tangan.'),c,actions(btn('Urungkan',()=>{strokes.pop();cur=null;redraw()}),btn('Hapus',()=>{strokes=[];cur=null;redraw()})));return {ui,valid:()=>strokes.some(s=>s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>4)),data:()=>c.toDataURL('image/png')}}
 async function respondent(fid){
   topActions.replaceChildren();
   const f=await api('/api/public/'+fid);
@@ -205,33 +207,43 @@ async function respondent(fid){
       controls=[n];
       readers[q.id]=()=>n.value;
     }
-    return card(el('h3',{},q.label,q.required?el('span',{class:'required'},' *'):null),...controls);
+    return card(el('h3',{class:'q-title'},q.label,q.required?el('span',{class:'required'},' *'):null),...controls);
   };
   const total=pageCountOf(f.fields);
   const nameInput=el('input',{type:'text',maxLength:200,placeholder:'Nama lengkap',autocomplete:'name','aria-label':'Nama'});
+  const positionInput=el('input',{type:'text',maxLength:200,placeholder:'Contoh: Staf Keuangan / Divisi Operasional',autocomplete:'organization-title','aria-label':'Jabatan/Divisi'});
   const pages=[];
   for(let p=0;p<total;p++){
     const qs=f.fields.filter(q=>pageOf(q)===p);
     const nodes=[];
     if(p===0){
-      nodes.push(el('section',{class:'card hero'},el('h1',{},f.title),el('p',{},f.description),el('span',{class:'required'},'* Wajib diisi')));
-      nodes.push(card(el('h3',{},'Nama ',el('span',{class:'required'},'*')),nameInput));
+      nodes.push(el('section',{class:'card hero'},
+        el('h1',{},f.title),
+        el('hr',{class:'divider'}),
+        f.description?el('p',{},f.description):null,
+        el('span',{class:'required'},'* Wajib diisi')));
+      nodes.push(card(el('h3',{class:'q-title'},'Nama ',el('span',{class:'required'},'*')),nameInput));
+      nodes.push(card(el('h3',{class:'q-title'},'Jabatan/Divisi ',el('span',{class:'required'},'*')),positionInput));
     }
     qs.forEach(q=>nodes.push(buildQuestion(q)));
     const pad=signaturePad('Tanda tangan'+(total>1?' halaman '+(p+1):''));
     nodes.push(pad.ui);
     pages.push({qs,nodes,pad});
   }
+  const agree=el('input',{type:'checkbox'});
+  const agreeLine=el('label',{class:'agree-line'},agree,el('span',{},'Saya menyatakan bahwa data yang saya isi adalah benar dan dapat dipertanggungjawabkan.'));
   let current=0;
   const e=err(),stepInfo=el('div',{class:'step-info muted'}),nav=el('div',{class:'actions nav'});
   const answerText=q=>{const v=readers[q.id]();return v};
   function checkPage(p){
     if(p===0&&!nameInput.value.trim())return 'Nama wajib diisi.';
+    if(p===0&&!positionInput.value.trim())return 'Jabatan/Divisi wajib diisi.';
     for(const q of pages[p].qs){
       const v=answerText(q);
       if(q.required&&(!v.length||(typeof v==='string'&&!v.trim())))return 'Wajib diisi: '+q.label;
     }
     if(!pages[p].pad.valid())return 'Tanda tangan wajib diisi. Buat coretan pada kotak tanda tangan.';
+    if(p===total-1&&!agree.checked)return 'Centang pernyataan bahwa data yang Anda isi adalah benar.';
     return '';
   }
   let submitting=false;
@@ -244,7 +256,7 @@ async function respondent(fid){
     submitting=true;render();
     try{
       const answers=Object.fromEntries(f.fields.map(q=>[q.id,readers[q.id]()]));
-      const r=await api('/api/public/'+fid+'/submit','POST',{revision:f.revision,name:nameInput.value.trim(),answers,signatures:pages.map(x=>x.pad.data())});
+      const r=await api('/api/public/'+fid+'/submit','POST',{revision:f.revision,name:nameInput.value.trim(),position:positionInput.value.trim(),answers,signatures:pages.map(x=>x.pad.data())});
       setPage(el('section',{class:'card hero'},el('h1',{},'Jawaban berhasil dikirim'),el('p',{},'Terima kasih. Jawaban dan tanda tangan telah tersimpan.'),el('p',{class:'muted'},'ID respons: '+r.id),btn('Isi jawaban lain',()=>location.reload())));
     }catch(ex){submitting=false;e.textContent=ex.message;render()}
   }
@@ -255,6 +267,7 @@ async function respondent(fid){
     const prev=btn('Kembali',()=>{e.textContent='';show(current-1)});
     prev.disabled=submitting;
     const isLast=current===total-1;
+    agreeLine.style.display=isLast?'':'none';
     const next=el('button',{type:'submit',class:'primary'},isLast?(submitting?'Mengirim…':'Kirim jawaban'):'Lanjut');
     next.disabled=submitting;
     nav.replaceChildren(...(current>0?[prev]:[]),next);
@@ -265,7 +278,7 @@ async function respondent(fid){
     const msg=checkPage(current);
     if(msg){e.textContent=msg;return}
     if(current<total-1)show(current+1);else submit();
-  }},stepInfo,holder,e,nav);
+  }},stepInfo,holder,agreeLine,e,nav);
   render();
   setPage(form);
 }
@@ -278,6 +291,7 @@ async function responses(f){
         const first=r.snapshot.fields[0];
         return card(el('div',{class:'bar'},el('h3',{},'Respons '+(rows.length-i)),el('span',{class:'muted'},formatDate(r.created))),
           r.name?el('p',{},'Nama: '+r.name):null,
+          r.position?el('p',{},'Jabatan/Divisi: '+r.position):null,
           first?el('p',{},first.label+': '+display(r.answers[first.id])):null,
           btn('Lihat detail & tanda tangan',()=>detail(f,r)));
       }):[card(el('p',{},'Belum ada jawaban. Bagikan link formulir untuk mulai.'))]));
@@ -291,6 +305,7 @@ function detail(f,r){
   for(let p=0;p<total;p++){
     if(total>1)blocks.push(el('h2',{class:'page-title'},'Halaman '+(p+1)));
     if(p===0&&r.name)blocks.push(el('div',{class:'answer'},el('strong',{},'Nama'),el('p',{},r.name)));
+    if(p===0&&r.position)blocks.push(el('div',{class:'answer'},el('strong',{},'Jabatan/Divisi'),el('p',{},r.position)));
     fields.filter(q=>pageOf(q)===p).forEach(q=>blocks.push(el('div',{class:'answer'},el('strong',{},q.label),el('p',{},display(r.answers[q.id])))));
     blocks.push(el('h3',{},'Tanda tangan'+(total>1?' halaman '+(p+1):'')));
     if(sigs[p])blocks.push(el('img',{class:'signature-image',src:sigs[p],alt:'Tanda tangan responden halaman '+(p+1)}));

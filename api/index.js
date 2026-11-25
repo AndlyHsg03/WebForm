@@ -83,6 +83,9 @@ function validateResponse(form, body) {
   if (typeof body.name !== 'string' || !body.name.trim() || body.name.trim().length > 200) throw new HttpError(400, 'Nama wajib diisi (maksimal 200 karakter).');
   const name = body.name.trim();
 
+  if (typeof body.position !== 'string' || !body.position.trim() || body.position.trim().length > 200) throw new HttpError(400, 'Jabatan/Divisi wajib diisi (maksimal 200 karakter).');
+  const position = body.position.trim();
+
   const pageCount = formPageCount(form);
   let signatures = body.signatures;
   if (signatures === undefined && typeof body.signature === 'string' && pageCount === 1) signatures = [body.signature];
@@ -94,7 +97,7 @@ function validateResponse(form, body) {
     if (png.length < 50 || png.toString('base64') !== encoded || !png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) throw new HttpError(400, `Tanda tangan halaman ${index + 1} tidak valid.`);
     return encoded;
   });
-  return { answers, name, signatures: encodedSignatures };
+  return { answers, name, position, signatures: encodedSignatures };
 }
 
 function formPageCount(form) {
@@ -127,6 +130,7 @@ async function ensureSchema(sql) {
         signature text NOT NULL
       )`;
       await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS name text NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS position text NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS signatures jsonb NOT NULL DEFAULT '[]'::jsonb`;
     })().catch((error) => {
       schemaReady = undefined;
@@ -218,6 +222,7 @@ function publicResponse(row) {
     snapshot: row.snapshot,
     answers: row.answers,
     name: row.name || '',
+    position: row.position || '',
     signature: PNG_PREFIX + row.signature,
     signatures: list.map((item) => PNG_PREFIX + item),
   };
@@ -225,7 +230,7 @@ function publicResponse(row) {
 
 async function backupData(sql) {
   const forms = await sql`SELECT id, title, description, fields, active, revision FROM forms ORDER BY created_at`;
-  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, signatures FROM responses ORDER BY created`;
+  const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, position, signatures FROM responses ORDER BY created`;
   const responses = rows.map(publicResponse);
   return { app: 'FormTanda', version: 2, forms, responses };
 }
@@ -271,19 +276,19 @@ async function handler(req, res) {
       if (!form) throw new HttpError(404, 'Formulir tidak tersedia atau ditutup.');
       if (req.method === 'GET' && !submitPath) return send(res, 200, form);
       if (req.method === 'POST' && submitPath) {
-        const { answers, name, signatures } = validateResponse(form, await readBody(req));
+        const { answers, name, position, signatures } = validateResponse(form, await readBody(req));
         const responseId = crypto.randomBytes(12).toString('hex');
         const created = new Date().toISOString();
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, signatures)
-          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signatures[0]}, ${name}, ${JSON.stringify(signatures)}::jsonb)`;
+        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, position, signatures)
+          VALUES (${responseId}, ${formId}, ${created}, ${JSON.stringify(form)}::jsonb, ${JSON.stringify(answers)}::jsonb, ${signatures[0]}, ${name}, ${position}, ${JSON.stringify(signatures)}::jsonb)`;
         return send(res, 201, { ok: true, id: responseId });
       }
     }
 
     requireAdmin(req);
 
-  const sql = createSql();
-  await ensureSchema(sql);
+    const sql = createSql();
+    await ensureSchema(sql);
 
     if (pathname === '/api/admin/forms' && req.method === 'GET') {
       const forms = await sql`SELECT f.id, f.title, f.description, f.fields, f.active, f.revision,
@@ -312,7 +317,7 @@ async function handler(req, res) {
         return send(res, 200, { ok: true });
       }
       if (req.method === 'GET' && suffix === '/responses') {
-        const responses = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, signatures FROM responses WHERE form_id = ${formId} ORDER BY created DESC`;
+        const responses = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, position, signatures FROM responses WHERE form_id = ${formId} ORDER BY created DESC`;
         return send(res, 200, responses.map(publicResponse));
       }
     }
@@ -334,7 +339,8 @@ async function handler(req, res) {
           return pngSignature(entry.slice(PNG_PREFIX.length));
         });
         const name = typeof item.name === 'string' ? item.name.slice(0, 200) : '';
-        return { ...item, signature, signatures, name };
+        const position = typeof item.position === 'string' ? item.position.slice(0, 200) : '';
+        return { ...item, signature, signatures, name, position };
       });
       for (const form of validatedForms) {
         await sql`INSERT INTO forms (id, title, description, fields, active, revision)
@@ -343,9 +349,9 @@ async function handler(req, res) {
           active = EXCLUDED.active, revision = EXCLUDED.revision WHERE forms.revision <= EXCLUDED.revision`;
       }
       for (const response of validatedResponses) {
-        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, signatures)
+        await sql`INSERT INTO responses (id, form_id, created, snapshot, answers, signature, name, position, signatures)
           VALUES (${response.id}, ${response.form_id}, ${response.created}, ${JSON.stringify(response.snapshot)}::jsonb,
-          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}, ${response.name}, ${JSON.stringify(response.signatures)}::jsonb) ON CONFLICT (id) DO NOTHING`;
+          ${JSON.stringify(response.answers)}::jsonb, ${response.signature}, ${response.name}, ${response.position}, ${JSON.stringify(response.signatures)}::jsonb) ON CONFLICT (id) DO NOTHING`;
       }
       return send(res, 200, { ok: true });
     }
