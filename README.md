@@ -4,7 +4,7 @@
 
 1. Salin `.env.example` menjadi `.env`.
 2. Isi `FORMTANDA_PASSWORD` dengan password baru yang kuat dan `DATABASE_URL` dengan pooled connection string dari Neon. Jangan commit `.env`.
-3. Jalankan `npm install`, lalu `npm start` dan buka `http://localhost:3000`.
+3. Jalankan `npm install`, lalu `npm run dev` dan buka `http://localhost:3000`.
 
 Node.js 22.13 atau lebih baru diperlukan. Tabel Postgres dibuat otomatis saat API pertama kali dipanggil. Formulir, jawaban, dan tanda tangan tersimpan di Neon.
 
