@@ -46,7 +46,9 @@ function checkedForm(body) {
     }
     const page = field.page ?? 0;
     if (!Number.isInteger(page) || page < 0 || page >= MAX_PAGES) throw new HttpError(400, `Halaman tidak valid (maksimal ${MAX_PAGES} halaman).`);
-    return { id, label: label.trim(), type, required, options, page };
+    const pageTitle = typeof field.pageTitle === 'string' ? field.pageTitle.trim().slice(0, 200) : '';
+    const pageDescription = typeof field.pageDescription === 'string' ? field.pageDescription.slice(0, 5000) : '';
+    return { id, label: label.trim(), type, required, options, page, ...(pageTitle ? { pageTitle } : {}), ...(pageDescription.trim() ? { pageDescription } : {}) };
   });
   const pageNumbers = cleanFields.map((field) => field.page);
   const pageCount = Math.max(...pageNumbers) + 1;
