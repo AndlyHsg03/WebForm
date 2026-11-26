@@ -266,7 +266,7 @@ function editor(original){
       inPage.forEach((f,i)=>nodes.push(questionCard(f,i+1,inPage.length,i)));
       nodes.push(actions(btn('+ Tambah pertanyaan',()=>addQuestion(p))));
       nodes.push(el('div',{class:'spacer'}));
-      nodes.push(card(el('h3',{},'Tanda tangan (wajib)'),el('p',{class:'muted'},'Otomatis ditempatkan di bagian bawah halaman ini, diikuti kotak centang pernyataan. Judul dan deskripsi halaman 2 dan seterusnya diatur di bagian atas halaman masing-masing.')));
+      nodes.push(card(el('h3',{},'Paraf (wajib)'),el('p',{class:'muted'},'Otomatis ditempatkan di bagian bawah halaman ini, diikuti kotak centang pernyataan. Judul dan deskripsi halaman 2 dan seterusnya diatur di bagian atas halaman masing-masing.')));
     }
     nodes.push(el('div',{class:'spacer'}));
     nodes.push(actions(btn('+ Tambah halaman',addPage)));
@@ -291,7 +291,7 @@ function editor(original){
     el('section',{class:'card hero',style:'--accent:'+pageColor(0).accent},inputLabel('Nama formulir (khusus admin)',adminTitle),el('p',{class:'muted'},'Hanya tampil di daftar "Formulir saya" dan halaman jawaban. Responden tidak melihatnya. Kosongkan untuk memakai judul formulir.'),inputLabel('Judul formulir (tampil ke responden)',title),el('div',{class:'actions'},el('strong',{},'Deskripsi'),boldBtn,el('span',{class:'muted'},'Blok teks lalu klik B, atau Ctrl+B')),description,el('label',{class:'choice'},active,'Terima jawaban (formulir aktif)')),
     list,el('div',{class:'spacer'}),actions(save,btn('Batal',dashboard)),e);
 }
-function signaturePad(title='Tanda tangan'){const c=el('canvas',{class:'sig',width:1000,height:380,'aria-label':'Area tanda tangan'}), ctx=c.getContext('2d');let strokes=[],cur=null,pointer=null;function pos(ev){const r=c.getBoundingClientRect();return [(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]}function redraw(){ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle='#202132';for(const s of strokes){ctx.beginPath();if(s.length===1){ctx.arc(s[0][0],s[0][1],2.5,0,Math.PI*2);ctx.fill()}else{ctx.moveTo(...s[0]);s.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke()}}}c.addEventListener('pointerdown',ev=>{if(cur||ev.button!==0)return;ev.preventDefault();pointer=ev.pointerId;c.setPointerCapture(pointer);cur=[pos(ev)];strokes.push(cur);redraw()});c.addEventListener('pointermove',ev=>{if(cur&&ev.pointerId===pointer){cur.push(pos(ev));redraw()}});function end(ev){if(ev.pointerId===pointer){cur=null;pointer=null}}for(const evt of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(evt,end);const ui=card(el('h3',{class:'q-title'},title+' ',el('span',{class:'required'},'*')),el('p',{class:'muted'},'Gunakan mouse atau jari untuk tanda tangan.'),c,actions(btn('Urungkan',()=>{strokes.pop();cur=null;redraw()}),btn('Hapus',()=>{strokes=[];cur=null;redraw()})));return {ui,valid:()=>strokes.some(s=>s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>4)),data:()=>c.toDataURL('image/png')}}
+function signaturePad(title='Paraf'){const c=el('canvas',{class:'sig',width:1000,height:380,'aria-label':'Area paraf'}), ctx=c.getContext('2d');let strokes=[],cur=null,pointer=null;function pos(ev){const r=c.getBoundingClientRect();return [(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]}function redraw(){ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle='#202132';for(const s of strokes){ctx.beginPath();if(s.length===1){ctx.arc(s[0][0],s[0][1],2.5,0,Math.PI*2);ctx.fill()}else{ctx.moveTo(...s[0]);s.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke()}}}c.addEventListener('pointerdown',ev=>{if(cur||ev.button!==0)return;ev.preventDefault();pointer=ev.pointerId;c.setPointerCapture(pointer);cur=[pos(ev)];strokes.push(cur);redraw()});c.addEventListener('pointermove',ev=>{if(cur&&ev.pointerId===pointer){cur.push(pos(ev));redraw()}});function end(ev){if(ev.pointerId===pointer){cur=null;pointer=null}}for(const evt of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(evt,end);const ui=card(el('h3',{class:'q-title'},title+' ',el('span',{class:'required'},'*')),el('p',{class:'muted'},'Gunakan mouse atau jari untuk membuat paraf.'),c,actions(btn('Urungkan',()=>{strokes.pop();cur=null;redraw()}),btn('Hapus',()=>{strokes=[];cur=null;redraw()})));return {ui,valid:()=>strokes.some(s=>s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>4)),data:()=>c.toDataURL('image/png')}}
 async function respondent(fid){
   topActions.replaceChildren();
   const f=await api('/api/public/'+fid);
@@ -332,7 +332,7 @@ async function respondent(fid){
       nodes.push(el('section',{class:'card hero'},el('h1',{},(firstQ&&firstQ.pageTitle)||f.title),el('hr',{class:'divider'}),firstQ&&firstQ.pageDescription?el('p',{},richText(firstQ.pageDescription)):null,el('span',{class:'required'},'* Wajib diisi')));
     }
     qs.forEach(q=>nodes.push(buildQuestion(q)));
-    const pad=signaturePad('Tanda tangan');
+    const pad=signaturePad('Paraf');
     nodes.push(pad.ui);
     const agree=el('input',{type:'checkbox'});
     nodes.push(el('label',{class:'agree-line'},agree,el('span',{},'Saya menyatakan bahwa data yang saya isi adalah benar dan dapat dipertanggungjawabkan.')));
@@ -348,7 +348,7 @@ async function respondent(fid){
       const v=answerText(q);
       if(q.required&&(!v.length||(typeof v==='string'&&!v.trim())))return 'Wajib diisi: '+plain(q.label);
     }
-    if(!pages[p].pad.valid())return 'Tanda tangan wajib diisi. Buat coretan pada kotak tanda tangan.';
+    if(!pages[p].pad.valid())return 'Paraf wajib diisi. Buat coretan pada kotak paraf.';
     if(!pages[p].agree.checked)return 'Centang pernyataan bahwa data yang Anda isi adalah benar.';
     return '';
   }
@@ -363,7 +363,7 @@ async function respondent(fid){
     try{
       const answers=Object.fromEntries(f.fields.map(q=>[q.id,readers[q.id]()]));
       const r=await api('/api/public/'+fid+'/submit','POST',{revision:f.revision,name:nameInput.value.trim(),position:positionInput.value.trim(),answers,signatures:pages.map(x=>x.pad.data())});
-      setPage(el('section',{class:'card hero',style:'--accent:'+pageColor(current).accent},el('h1',{},'Jawaban berhasil dikirim'),el('p',{},'Terima kasih. Jawaban dan tanda tangan telah tersimpan.'),el('p',{class:'muted'},'ID respons: '+r.id),btn('Isi jawaban lain',()=>location.reload())));
+      setPage(el('section',{class:'card hero',style:'--accent:'+pageColor(current).accent},el('h1',{},'Jawaban berhasil dikirim'),el('p',{},'Terima kasih. Jawaban dan paraf telah tersimpan.'),el('p',{class:'muted'},'ID respons: '+r.id),btn('Isi jawaban lain',()=>location.reload())));
     }catch(ex){submitting=false;e.textContent=ex.message;render()}
   }
   const holder=el('div');
