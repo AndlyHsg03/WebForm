@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Penilaian SLA MKP</title>
 <style>:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202132;background:#f3f1f9;font-size:16px;--accent:#6143b5;--line:#dedbe8}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:16px max(20px,calc((100vw - 1000px)/2));gap:12px}.brand{display:flex;flex-direction:column;gap:5px}.brand .logo{height:38px;width:auto;display:block;align-self:flex-start}.brand-sub{font-size:11px;font-weight:700;color:#6c687c;text-transform:uppercase;letter-spacing:.3em;text-align:justify;text-align-last:justify;line-height:1}.brand span{color:var(--accent)}main{max-width:760px;margin:28px auto;padding:0 15px}footer{text-align:center;color:#777287;font-size:12px;padding:20px}h1{font-size:clamp(24px,5vw,34px);line-height:1.15;margin:0 0 10px}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:8px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px;box-shadow:0 2px 6px #2d1c6210}.hero{border-top:7px solid var(--accent)}.bar,.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.bar{justify-content:space-between;margin-bottom:16px}.muted,small{color:#6c687c;font-size:13px}.required,.error{color:#b3261e}.error{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;font-weight:550;margin-bottom:8px}input:not([type=checkbox]):not([type=radio]),textarea,select{width:100%;font:inherit;padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;color:#202132;margin:5px 0 12px}input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8466e4;outline-offset:2px}textarea{resize:vertical;min-height:80px}button,.btn{border:1px solid var(--line);border-radius:7px;padding:9px 14px;background:white;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;white-space:normal}button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:white}button:disabled{opacity:.55;cursor:wait}button.danger{color:#a52d25}.choice{display:flex;align-items:center;gap:10px;font-weight:400;margin:12px 0;overflow-wrap:anywhere}input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{font-size:12px;background:#efedf5;border-radius:12px;padding:4px 9px;color:#605773}.sig{width:100%;height:190px;background:white;border:1px dashed #aaa4b7;border-radius:8px;touch-action:none;cursor:crosshair;display:block;margin:12px 0}.signature-image{max-width:100%;max-height:190px;border:1px solid var(--line);border-radius:8px;background:#fff;display:block}.question-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}.answer{border-bottom:1px solid var(--line);padding:8px 0}.answer:last-child{border:0}.answer p{margin:4px 0 8px}.empty{text-align:center;padding:35px 20px}.spacer{height:10px}.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 12px;padding-top:6px;border-top:2px solid var(--line)}.page-head h2{margin:0}.step-info{margin:0 0 12px;font-weight:600}.nav{margin:6px 0 24px}.page-title{margin:20px 0 6px;color:var(--accent)}
-.divider{border:0;border-top:1px solid var(--line);margin:14px 0}.q-title{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}.answer strong{display:block;white-space:pre-wrap;overflow-wrap:anywhere}.agree-line{display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:400;line-height:1.45;margin:4px 2px 14px;cursor:pointer}.agree-line input{width:14px;height:14px;margin:2px 0 0;flex:none}
-h3.q-title.rich{font-weight:500}
+.divider{border:0;border-top:1px solid var(--line);margin:14px 0}.q-title{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line);overflow-wrap:anywhere;line-height:1.5}div.q-title{font-size:17px;font-weight:700}.answer strong{display:block;white-space:pre-wrap;overflow-wrap:anywhere}.agree-line{display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:400;line-height:1.45;margin:4px 2px 14px;cursor:pointer}.agree-line input{width:14px;height:14px;margin:2px 0 0;flex:none}
+.q-title.rich{font-weight:500}
+.rich-block{line-height:1.55;margin:8px 0 14px;overflow-wrap:anywhere}.rich-block .ln,.rich-block li{white-space:pre-wrap;min-height:1.55em}.rich-block ul,.rich-block ol{margin:4px 0;padding-left:26px}.rich-block li{margin:3px 0;padding-left:3px}.q-title.rich-block{margin:0 0 14px}
+.field-label{font-weight:550;margin-bottom:6px}.rte{margin:2px 0 14px}.rte-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}button.tool{padding:5px 12px;font-size:14px;min-width:40px}
+.rte-area{padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.rte-area:focus{outline:2px solid #8466e4;outline-offset:2px}.rte-area:empty::before{content:attr(data-ph);color:#8b8799;pointer-events:none}.rte-area ul,.rte-area ol{margin:4px 0;padding-left:26px}.rte-area div{min-height:1.55em}.rte-count{text-align:right;margin-top:4px}
 button.bold-btn{font-weight:800;min-width:38px;padding:5px 12px}
 @media(max-width:480px){.brand .logo{height:30px}.brand-sub{font-size:10px}.grid{grid-template-columns:1fr}.card{padding:17px}main{margin-top:16px}.sig{height:170px}}@media print{header,footer,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;break-inside:avoid}body{background:white}}
 </style></head>
@@ -176,18 +179,92 @@ async function deleteForm(f){
 }
 function pageOf(q){return q.page||0}
 function pageCountOf(fields){return Math.max(0,...fields.map(pageOf))+1}
-const plain=s=>String(s).replace(/\*\*([^*]+?)\*\*/g,'$1');
-function boldControl(ta,set){
-  function toggle(){
-    const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value,sel=v.slice(s,en);
-    let nv,cs,ce;
-    if(sel.length>=4&&sel.startsWith('**')&&sel.endsWith('**')){nv=v.slice(0,s)+sel.slice(2,-2)+v.slice(en);cs=s;ce=en-4}
-    else if(v.slice(s-2,s)==='**'&&v.slice(en,en+2)==='**'){nv=v.slice(0,s-2)+sel+v.slice(en+2);cs=s-2;ce=en-2}
-    else{nv=v.slice(0,s)+'**'+sel+'**'+v.slice(en);cs=s+2;ce=en+2}
-    ta.value=nv;set(nv);ta.focus();ta.setSelectionRange(cs,ce);
+const plain=s=>String(s).replace(/\*\*([^*]+?)\*\*/g,'$1').replace(/^\s*[-•]\s+/gm,'');
+const hasFmt=s=>/\*\*[^*]+?\*\*|^\s*(?:[-•]|\d+\.)\s/m.test(s);
+function parseBlocks(s){
+  const blocks=[];
+  for(const line of String(s).split('\n')){
+    const m=line.match(/^\s*(?:([-•])|(\d+)\.)\s+(.*)$/);
+    const type=m?(m[1]?'ul':'ol'):'p',text=m?m[3]:line,last=blocks[blocks.length-1];
+    if(type==='p')blocks.push({type,text});
+    else if(last&&last.type===type)last.items.push(text);
+    else blocks.push({type,items:[text]});
   }
-  ta.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='b'){ev.preventDefault();toggle()}});
-  const b=btn('B',toggle,'bold-btn');b.title='Tebal (Ctrl+B)';return b;
+  return blocks;
+}
+function richBlock(s,suffix){
+  const nodes=parseBlocks(s).map(b=>b.type==='p'?el('div',{class:'ln'},richText(b.text)):el(b.type,{},b.items.map(it=>el('li',{},richText(it)))));
+  if(suffix&&nodes.length){const last=nodes[nodes.length-1];(last.tagName==='DIV'?last:last.lastChild).append(suffix)}
+  return nodes;
+}
+function editorNodes(s){
+  return parseBlocks(s).map(b=>b.type==='p'?el('div',{},b.text?richText(b.text):el('br')):el(b.type,{},b.items.map(it=>el('li',{},it?richText(it):el('br')))));
+}
+function serializeEditor(root){
+  const out=[];
+  const inl=(n,inB)=>{
+    if(n.nodeType===3)return n.nodeValue.replace(/\u200b/g,'').replace(/\u00a0/g,' ');
+    if(n.nodeType!==1)return '';
+    if(n.tagName==='BR')return '\n';
+    const fw=n.style&&n.style.fontWeight;
+    const b=n.tagName==='B'||n.tagName==='STRONG'||fw==='bold'||Number(fw)>=600;
+    let s='';n.childNodes.forEach(c=>{s+=inl(c,inB||b)});
+    return b&&!inB?s.split('\n').map(x=>x.trim()?'**'+x+'**':x).join('\n'):s;
+  };
+  const isList=n=>n.nodeType===1&&/^(UL|OL)$/.test(n.tagName);
+  const list=n=>{
+    let i=0;
+    n.childNodes.forEach(li=>{
+      if(li.nodeType!==1||li.tagName!=='LI')return;
+      let txt='';const subs=[];
+      li.childNodes.forEach(c=>{if(isList(c))subs.push(c);else txt+=inl(c,false)});
+      i++;
+      txt.replace(/\n$/,'').split('\n').forEach((x,k)=>out.push(k===0?(n.tagName==='OL'?i+'. ':'- ')+x:x));
+      subs.forEach(list);
+    });
+  };
+  const walk=parent=>{
+    let acc=null;
+    const flush=()=>{if(acc!==null){acc.replace(/\n$/,'').split('\n').forEach(x=>out.push(x));acc=null}};
+    parent.childNodes.forEach(n=>{
+      if(isList(n)){flush();list(n)}
+      else if(n.nodeType===1&&/^(DIV|P)$/.test(n.tagName)){
+        flush();
+        if([...n.childNodes].some(c=>c.nodeType===1&&(/^(DIV|P)$/.test(c.tagName)||isList(c))))walk(n);
+        else inl(n,false).replace(/\n$/,'').split('\n').forEach(x=>out.push(x));
+      }else acc=(acc===null?'':acc)+inl(n,false);
+    });
+    flush();
+  };
+  walk(root);
+  return out.join('\n').replace(/\*\*\*\*/g,'').replace(/\n+$/,'');
+}
+function richEditor(value,onChange,opts={}){
+  const max=opts.max||5000;
+  const area=el('div',{class:'rte-area',contentEditable:'true',role:'textbox','aria-multiline':'true','aria-label':opts.label||'Teks','data-ph':opts.placeholder||''});
+  area.style.minHeight=(opts.minHeight||110)+'px';
+  if(value&&String(value).trim())area.replaceChildren(...editorNodes(value));
+  const count=el('div',{class:'muted rte-count'});
+  const sync=()=>{
+    const v=serializeEditor(area);
+    if(!v&&area.children.length<=1&&area.innerHTML!=='')area.innerHTML='';
+    onChange(v);
+    count.textContent=v.length>max*0.8?v.length+' / '+max+' karakter':'';
+    count.style.color=v.length>max?'#b3261e':'';
+  };
+  const cmd=c=>{area.focus();document.execCommand(c,false,null);sync()};
+  const tb=(label,title,fn)=>el('button',{type:'button',class:'tool',title,'aria-label':title,onmousedown:ev=>ev.preventDefault(),onclick:fn},label);
+  const tools=el('div',{class:'rte-tools'},tb(el('b',{},'B'),'Tebal (Ctrl+B)',()=>cmd('bold')),tb('• Poin','Daftar poin',()=>cmd('insertUnorderedList')),tb('1. Nomor','Daftar bernomor',()=>cmd('insertOrderedList')));
+  area.addEventListener('input',sync);
+  area.addEventListener('focus',()=>{try{document.execCommand('styleWithCSS',false,false)}catch{}});
+  area.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&['i','u'].includes(ev.key.toLowerCase()))ev.preventDefault()});
+  area.addEventListener('paste',ev=>{
+    ev.preventDefault();
+    const text=((ev.clipboardData||window.clipboardData).getData('text/plain')||'').replace(/\r/g,'');
+    text.split('\n').forEach((line,i)=>{if(i>0)document.execCommand('insertParagraph');if(line)document.execCommand('insertText',false,line)});
+    sync();
+  });
+  return el('div',{class:'rte'},tools,area,count);
 }
 function richText(s){const out=[],re=/\*\*([^*]+?)\*\*/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)out.push(s.slice(last,m.index));out.push(el('strong',{},m[1]));last=re.lastIndex}if(last<s.length)out.push(s.slice(last));return out}
 function editor(original){
@@ -200,8 +277,6 @@ function editor(original){
   const list=el('div'),e=err();
   const title=el('input',{value:model.title,placeholder:'Contoh: Formulir Serah Terima Barang',maxLength:200,oninput:ev=>model.title=ev.target.value});
   const adminTitle=el('input',{value:model.adminTitle||'',placeholder:'Contoh: Serah Terima Barang - Divisi A',maxLength:200,oninput:ev=>model.adminTitle=ev.target.value});
-  const description=el('textarea',{value:model.description,placeholder:'Petunjuk pengisian (opsional)',maxLength:5000,oninput:ev=>model.description=ev.target.value,'aria-label':'Deskripsi'});
-  const boldBtn=boldControl(description,v=>model.description=v);
   const active=el('input',{type:'checkbox',checked:model.active,onchange:ev=>model.active=ev.target.checked});
   const MAX_PAGES=10;
   function addQuestion(page){
@@ -241,17 +316,15 @@ function editor(original){
   function pageMetaCard(p){
     const m=meta(p);
     const ti=el('input',{value:m.title,placeholder:'Judul halaman '+(p+1)+' (kosongkan untuk memakai judul formulir)',maxLength:200,'aria-label':'Judul halaman '+(p+1),oninput:ev=>m.title=ev.target.value});
-    const de=el('textarea',{value:m.description,placeholder:'Deskripsi halaman (opsional)',maxLength:5000,'aria-label':'Deskripsi halaman '+(p+1),oninput:ev=>m.description=ev.target.value});
-    return el('section',{class:'card hero',style:'--accent:'+pageColor(p).accent},inputLabel('Judul halaman '+(p+1),ti),el('div',{class:'actions'},el('strong',{},'Deskripsi halaman (opsional)'),boldControl(de,v=>m.description=v),el('span',{class:'muted'},'Blok teks lalu klik B, atau Ctrl+B')),de);
+    return el('section',{class:'card hero',style:'--accent:'+pageColor(p).accent},inputLabel('Judul halaman '+(p+1),ti),el('div',{class:'field-label'},'Deskripsi halaman (opsional)'),richEditor(m.description,v=>m.description=v,{label:'Deskripsi halaman '+(p+1),placeholder:'Deskripsi halaman (opsional)',minHeight:110}));
   }
   function questionCard(f,number,pageSize,pos){
-    const label=el('textarea',{value:f.label,placeholder:'Tulis pertanyaan (tekan Enter untuk baris baru)',maxLength:5000,rows:4,style:'min-height:110px','aria-label':'Pertanyaan',oninput:ev=>f.label=ev.target.value});
     const typ=el('select',{onchange:ev=>{f.type=ev.target.value;if(['radio','checkbox','select'].includes(f.type)&&f.options.length<2)f.options=['Pilihan 1','Pilihan 2'];renderFields()}},Object.entries(types).map(([k,v])=>el('option',{value:k,selected:k===f.type},v)));
     const req=el('input',{type:'checkbox',checked:f.required,onchange:ev=>f.required=ev.target.checked});
     const options=el('textarea',{value:f.options.join('\n'),placeholder:'Satu pilihan per baris',oninput:ev=>f.options=ev.target.value.split('\n')});
     return card(
       el('div',{class:'question-head'},el('h3',{},'Pertanyaan '+number),actions(btn('↑',()=>move(f,-1)),btn('↓',()=>move(f,1)),btn('Hapus',()=>removeQuestion(f),'danger'))),
-      el('div',{class:'actions'},el('strong',{},'Pertanyaan'),boldControl(label,v=>f.label=v),el('span',{class:'muted'},'Blok teks lalu klik B, atau Ctrl+B')),label,inputLabel('Jenis jawaban',typ),
+      el('div',{class:'field-label'},'Pertanyaan'),richEditor(f.label,v=>f.label=v,{label:'Pertanyaan',placeholder:'Tulis pertanyaan...',minHeight:100}),inputLabel('Jenis jawaban',typ),
       ['radio','checkbox','select'].includes(f.type)?inputLabel('Pilihan jawaban (satu per baris)',options):null,
       el('label',{class:'choice'},req,'Wajib diisi'));
   }
@@ -283,12 +356,13 @@ function editor(original){
         if(!seenPage.has(f.page)){seenPage.add(f.page);if(f.page>0){const m=meta(f.page);if(m.title.trim())o.pageTitle=m.title.trim();if(m.description.trim())o.pageDescription=m.description}}
         return o;
       })};
+      if((model.description||'').length>5000||data.fields.some(f=>f.label.length>5000||(f.pageDescription||'').length>5000))throw new Error('Teks deskripsi atau pertanyaan melebihi 5000 karakter. Perpendek dulu.');
       await api(original?'/api/admin/forms/'+original.id:'/api/admin/forms',original?'PUT':'POST',data);
       await dashboard();
     }catch(ex){e.textContent=ex.message;e.scrollIntoView({block:'nearest'})}finally{save.disabled=false}
   },'primary');
   setPage(el('div',{class:'bar'},el('h1',{},original?'Edit formulir':'Buat formulir'),btn('Kembali',dashboard)),
-    el('section',{class:'card hero',style:'--accent:'+pageColor(0).accent},inputLabel('Nama formulir (khusus admin)',adminTitle),el('p',{class:'muted'},'Hanya tampil di daftar "Formulir saya" dan halaman jawaban. Responden tidak melihatnya. Kosongkan untuk memakai judul formulir.'),inputLabel('Judul formulir (tampil ke responden)',title),el('div',{class:'actions'},el('strong',{},'Deskripsi'),boldBtn,el('span',{class:'muted'},'Blok teks lalu klik B, atau Ctrl+B')),description,el('label',{class:'choice'},active,'Terima jawaban (formulir aktif)')),
+    el('section',{class:'card hero',style:'--accent:'+pageColor(0).accent},inputLabel('Nama formulir (khusus admin)',adminTitle),el('p',{class:'muted'},'Hanya tampil di daftar "Formulir saya" dan halaman jawaban. Responden tidak melihatnya. Kosongkan untuk memakai judul formulir.'),inputLabel('Judul formulir (tampil ke responden)',title),el('div',{class:'field-label'},'Deskripsi'),richEditor(model.description,v=>model.description=v,{label:'Deskripsi',placeholder:'Petunjuk pengisian (opsional)',minHeight:130}),el('label',{class:'choice'},active,'Terima jawaban (formulir aktif)')),
     list,el('div',{class:'spacer'}),actions(save,btn('Batal',dashboard)),e);
 }
 function signaturePad(title='Paraf'){const c=el('canvas',{class:'sig',width:1000,height:380,'aria-label':'Area paraf'}), ctx=c.getContext('2d');let strokes=[],cur=null,pointer=null;function pos(ev){const r=c.getBoundingClientRect();return [(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]}function redraw(){ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle='#202132';for(const s of strokes){ctx.beginPath();if(s.length===1){ctx.arc(s[0][0],s[0][1],2.5,0,Math.PI*2);ctx.fill()}else{ctx.moveTo(...s[0]);s.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke()}}}c.addEventListener('pointerdown',ev=>{if(cur||ev.button!==0)return;ev.preventDefault();pointer=ev.pointerId;c.setPointerCapture(pointer);cur=[pos(ev)];strokes.push(cur);redraw()});c.addEventListener('pointermove',ev=>{if(cur&&ev.pointerId===pointer){cur.push(pos(ev));redraw()}});function end(ev){if(ev.pointerId===pointer){cur=null;pointer=null}}for(const evt of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(evt,end);const ui=card(el('h3',{class:'q-title'},title+' ',el('span',{class:'required'},'*')),el('p',{class:'muted'},'Gunakan mouse atau jari untuk membuat paraf.'),c,actions(btn('Urungkan',()=>{strokes.pop();cur=null;redraw()}),btn('Hapus',()=>{strokes=[];cur=null;redraw()})));return {ui,valid:()=>strokes.some(s=>s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>4)),data:()=>c.toDataURL('image/png')}}
@@ -310,7 +384,7 @@ async function respondent(fid){
       controls=[n];
       readers[q.id]=()=>n.value;
     }
-    return card(el('h3',{class:'q-title'+(/\*\*[^*]+?\*\*/.test(q.label)?' rich':'')},richText(q.label),q.required?el('span',{class:'required'},' *'):null),...controls);
+    return card(el('div',{class:'q-title rich-block'+(hasFmt(q.label)?' rich':'')},richBlock(q.label,q.required?el('span',{class:'required'},' *'):null)),...controls);
   };
   const total=pageCountOf(f.fields);
   const nameInput=el('input',{type:'text',maxLength:200,placeholder:'Nama lengkap',autocomplete:'name','aria-label':'Nama pengisi (nama lengkap)'});
@@ -323,13 +397,13 @@ async function respondent(fid){
       nodes.push(el('section',{class:'card hero'},
         el('h1',{},f.title),
         el('hr',{class:'divider'}),
-        f.description?el('p',{},richText(f.description)):null,
+        f.description&&f.description.trim()?el('div',{class:'rich-block'},richBlock(f.description)):null,
         el('span',{class:'required'},'* Wajib diisi')));
       nodes.push(card(el('h3',{class:'q-title'},'Nama pengisi (nama lengkap) ',el('span',{class:'required'},'*')),nameInput));
       nodes.push(card(el('h3',{class:'q-title'},'Jabatan/Divisi ',el('span',{class:'required'},'*')),positionInput));
     }else{
       const firstQ=f.fields.find(q=>pageOf(q)===p);
-      nodes.push(el('section',{class:'card hero'},el('h1',{},(firstQ&&firstQ.pageTitle)||f.title),el('hr',{class:'divider'}),firstQ&&firstQ.pageDescription?el('p',{},richText(firstQ.pageDescription)):null,el('span',{class:'required'},'* Wajib diisi')));
+      nodes.push(el('section',{class:'card hero'},el('h1',{},(firstQ&&firstQ.pageTitle)||f.title),el('hr',{class:'divider'}),firstQ&&firstQ.pageDescription?el('div',{class:'rich-block'},richBlock(firstQ.pageDescription)):null,el('span',{class:'required'},'* Wajib diisi')));
     }
     qs.forEach(q=>nodes.push(buildQuestion(q)));
     const pad=signaturePad('Paraf');
