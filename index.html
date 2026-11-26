@@ -4,7 +4,7 @@
 .divider{border:0;border-top:1px solid var(--line);margin:14px 0}.q-title{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line);overflow-wrap:anywhere;line-height:1.5}div.q-title{font-size:17px;font-weight:700}.answer strong{display:block;white-space:pre-wrap;overflow-wrap:anywhere}.agree-line{display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:400;line-height:1.45;margin:4px 2px 14px;cursor:pointer}.agree-line input{width:14px;height:14px;margin:2px 0 0;flex:none}
 .q-title.rich{font-weight:500}
 .rich-block{line-height:1.55;margin:8px 0 14px;overflow-wrap:anywhere}.rich-block .ln,.rich-block li{white-space:pre-wrap;min-height:1.55em}.rich-block ul,.rich-block ol{margin:4px 0;padding-left:26px}.rich-block li{margin:3px 0;padding-left:3px}.q-title.rich-block{margin:0 0 14px}
-.field-label{font-weight:550;margin-bottom:6px}.rte{margin:2px 0 14px}.rte-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}button.tool{padding:5px 12px;font-size:14px;min-width:40px}
+.field-label{font-weight:550;margin-bottom:6px}.rte{margin:2px 0 14px}.rte-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}select.copy-to{width:auto;margin:0;padding:8px 10px;font-size:14px;font-weight:600;color:var(--accent)}button.tool{padding:5px 12px;font-size:14px;min-width:40px}
 .rte-area{padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.rte-area:focus{outline:2px solid #8466e4;outline-offset:2px}.rte-area:empty::before{content:attr(data-ph);color:#8b8799;pointer-events:none}.rte-area ul,.rte-area ol{margin:4px 0;padding-left:26px}.rte-area div{min-height:1.55em}.rte-count{text-align:right;margin-top:4px}
 button.bold-btn{font-weight:800;min-width:38px;padding:5px 12px}
 @media(max-width:480px){.brand .logo{height:30px}.brand-sub{font-size:10px}.grid{grid-template-columns:1fr}.card{padding:17px}main{margin-top:16px}.sig{height:170px}}@media print{header,footer,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;break-inside:avoid}body{background:white}}
@@ -313,17 +313,29 @@ function editor(original){
     model.fields.push(newField(count));
     renderFields();
   }
+  function cloneQuestion(f,page){
+    if(model.fields.length>=100)return alert('Maksimal 100 pertanyaan.');
+    const copy={...JSON.parse(JSON.stringify(f)),id:uid(),page};
+    delete copy.pageTitle;delete copy.pageDescription;
+    let at;
+    if(page===f.page)at=model.fields.indexOf(f)+1;
+    else{at=model.fields.length;for(let i=model.fields.length-1;i>=0;i--){if(model.fields[i].page===page){at=i+1;break}}}
+    model.fields.splice(at,0,copy);
+    renderFields();
+  }
   function pageMetaCard(p){
     const m=meta(p);
     const ti=el('input',{value:m.title,placeholder:'Judul halaman '+(p+1)+' (kosongkan untuk memakai judul formulir)',maxLength:200,'aria-label':'Judul halaman '+(p+1),oninput:ev=>m.title=ev.target.value});
     return el('section',{class:'card hero',style:'--accent:'+pageColor(p).accent},inputLabel('Judul halaman '+(p+1),ti),el('div',{class:'field-label'},'Deskripsi halaman (opsional)'),richEditor(m.description,v=>m.description=v,{label:'Deskripsi halaman '+(p+1),placeholder:'Deskripsi halaman (opsional)',minHeight:110}));
   }
   function questionCard(f,number,pageSize,pos){
+    const pageTotal=pageCountOf(model.fields);
+    const copyTo=pageTotal>1?el('select',{class:'copy-to','aria-label':'Salin pertanyaan ke halaman lain',onchange:ev=>{const v=ev.target.value;ev.target.value='';if(v!=='')cloneQuestion(f,Number(v))}},el('option',{value:''},'Salin ke halaman…'),Array.from({length:pageTotal},(_,i)=>i).filter(i=>i!==f.page).map(i=>el('option',{value:String(i)},'Halaman '+(i+1)))):null;
     const typ=el('select',{onchange:ev=>{f.type=ev.target.value;if(['radio','checkbox','select'].includes(f.type)&&f.options.length<2)f.options=['Pilihan 1','Pilihan 2'];renderFields()}},Object.entries(types).map(([k,v])=>el('option',{value:k,selected:k===f.type},v)));
     const req=el('input',{type:'checkbox',checked:f.required,onchange:ev=>f.required=ev.target.checked});
     const options=el('textarea',{value:f.options.join('\n'),placeholder:'Satu pilihan per baris',oninput:ev=>f.options=ev.target.value.split('\n')});
     return card(
-      el('div',{class:'question-head'},el('h3',{},'Pertanyaan '+number),actions(btn('↑',()=>move(f,-1)),btn('↓',()=>move(f,1)),btn('Hapus',()=>removeQuestion(f),'danger'))),
+      el('div',{class:'question-head'},el('h3',{},'Pertanyaan '+number),actions(btn('↑',()=>move(f,-1)),btn('↓',()=>move(f,1)),btn('Duplikat',()=>cloneQuestion(f,f.page)),copyTo,btn('Hapus',()=>removeQuestion(f),'danger'))),
       el('div',{class:'field-label'},'Pertanyaan'),richEditor(f.label,v=>f.label=v,{label:'Pertanyaan',placeholder:'Tulis pertanyaan...',minHeight:100}),inputLabel('Jenis jawaban',typ),
       ['radio','checkbox','select'].includes(f.type)?inputLabel('Pilihan jawaban (satu per baris)',options):null,
       el('label',{class:'choice'},req,'Wajib diisi'));
