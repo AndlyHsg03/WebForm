@@ -22,6 +22,8 @@ class HttpError extends Error {
 function checkedForm(body) {
   const { title, fields } = body;
   const description = body.description ?? '';
+  const adminTitle = body.adminTitle ?? '';
+  if (typeof adminTitle !== 'string' || adminTitle.trim().length > 200) throw new HttpError(400, 'Nama formulir (admin) terlalu panjang atau tidak valid.');
   const active = body.active ?? true;
   if (typeof title !== 'string' || !title.trim() || title.length > 200 || typeof description !== 'string' || description.length > 5000 || typeof active !== 'boolean') {
     throw new HttpError(400, 'Judul/deskripsi tidak valid.');
@@ -58,7 +60,7 @@ function checkedForm(body) {
   for (let page = 0; page < pageCount; page += 1) {
     if (!pageNumbers.includes(page)) throw new HttpError(400, `Halaman ${page + 1} belum punya pertanyaan.`);
   }
-  return { title: title.trim(), description, fields: cleanFields, active };
+  return { title: title.trim(), adminTitle: adminTitle.trim(), description, fields: cleanFields, active };
 }
 
 function validateResponse(form, body) {
@@ -131,6 +133,7 @@ async function ensureSchema(sql) {
         answers jsonb NOT NULL,
         signature text NOT NULL
       )`;
+      await sql`ALTER TABLE forms ADD COLUMN IF NOT EXISTS admin_title varchar(200) NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS name text NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS position text NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE responses ADD COLUMN IF NOT EXISTS signatures jsonb NOT NULL DEFAULT '[]'::jsonb`;
@@ -231,7 +234,7 @@ function publicResponse(row) {
 }
 
 async function backupData(sql) {
-  const forms = await sql`SELECT id, title, description, fields, active, revision FROM forms ORDER BY created_at`;
+  const forms = await sql`SELECT id, title, admin_title AS "adminTitle", description, fields, active, revision FROM forms ORDER BY created_at`;
   const rows = await sql`SELECT id, form_id, created, snapshot, answers, signature, name, position, signatures FROM responses ORDER BY created`;
   const responses = rows.map(publicResponse);
   return { app: 'FormTanda', version: 2, forms, responses };
@@ -293,7 +296,7 @@ async function handler(req, res) {
     await ensureSchema(sql);
 
     if (pathname === '/api/admin/forms' && req.method === 'GET') {
-      const forms = await sql`SELECT f.id, f.title, f.description, f.fields, f.active, f.revision,
+      const forms = await sql`SELECT f.id, f.title, f.admin_title AS "adminTitle", f.description, f.fields, f.active, f.revision,
         (SELECT COUNT(*)::integer FROM responses r WHERE r.form_id = f.id) AS count
         FROM forms f ORDER BY f.created_at DESC`;
       return send(res, 200, forms);
@@ -301,8 +304,8 @@ async function handler(req, res) {
     if (pathname === '/api/admin/forms' && req.method === 'POST') {
       const form = checkedForm(await readBody(req));
       const id = crypto.randomBytes(12).toString('hex');
-      await sql`INSERT INTO forms (id, title, description, fields, active, revision)
-        VALUES (${id}, ${form.title}, ${form.description}, ${JSON.stringify(form.fields)}::jsonb, ${form.active}, 1)`;
+      await sql`INSERT INTO forms (id, title, admin_title, description, fields, active, revision)
+        VALUES (${id}, ${form.title}, ${form.adminTitle}, ${form.description}, ${JSON.stringify(form.fields)}::jsonb, ${form.active}, 1)`;
       return send(res, 201, { id });
     }
 
@@ -314,7 +317,7 @@ async function handler(req, res) {
       if (!current) throw new HttpError(404, 'Formulir tidak ditemukan.');
       if (req.method === 'PUT' && !suffix) {
         const form = checkedForm(await readBody(req));
-        await sql`UPDATE forms SET title = ${form.title}, description = ${form.description}, fields = ${JSON.stringify(form.fields)}::jsonb,
+        await sql`UPDATE forms SET title = ${form.title}, admin_title = ${form.adminTitle}, description = ${form.description}, fields = ${JSON.stringify(form.fields)}::jsonb,
           active = ${form.active}, revision = revision + 1 WHERE id = ${formId}`;
         return send(res, 200, { ok: true });
       }
@@ -345,9 +348,9 @@ async function handler(req, res) {
         return { ...item, signature, signatures, name, position };
       });
       for (const form of validatedForms) {
-        await sql`INSERT INTO forms (id, title, description, fields, active, revision)
-          VALUES (${form.id}, ${form.title}, ${form.description}, ${JSON.stringify(form.fields)}::jsonb, ${form.active}, ${form.revision})
-          ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, description = EXCLUDED.description, fields = EXCLUDED.fields,
+        await sql`INSERT INTO forms (id, title, admin_title, description, fields, active, revision)
+          VALUES (${form.id}, ${form.title}, ${form.adminTitle}, ${form.description}, ${JSON.stringify(form.fields)}::jsonb, ${form.active}, ${form.revision})
+          ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, admin_title = EXCLUDED.admin_title, description = EXCLUDED.description, fields = EXCLUDED.fields,
           active = EXCLUDED.active, revision = EXCLUDED.revision WHERE forms.revision <= EXCLUDED.revision`;
       }
       for (const response of validatedResponses) {
