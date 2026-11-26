@@ -2,6 +2,7 @@
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FormTanda</title>
 <style>:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202132;background:#f3f1f9;font-size:16px;--accent:#6143b5;--line:#dedbe8}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:16px max(20px,calc((100vw - 1000px)/2));gap:12px}.brand{font-size:22px;font-weight:800;letter-spacing:-.7px}.brand span{color:var(--accent)}main{max-width:760px;margin:28px auto;padding:0 15px}footer{text-align:center;color:#777287;font-size:12px;padding:20px}h1{font-size:clamp(24px,5vw,34px);line-height:1.15;margin:0 0 10px}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:8px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px;box-shadow:0 2px 6px #2d1c6210}.hero{border-top:7px solid var(--accent)}.bar,.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.bar{justify-content:space-between;margin-bottom:16px}.muted,small{color:#6c687c;font-size:13px}.required,.error{color:#b3261e}.error{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;font-weight:550;margin-bottom:8px}input:not([type=checkbox]):not([type=radio]),textarea,select{width:100%;font:inherit;padding:11px 12px;border:1px solid #d4d0df;border-radius:7px;background:#fff;color:#202132;margin:5px 0 12px}input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8466e4;outline-offset:2px}textarea{resize:vertical;min-height:80px}button,.btn{border:1px solid var(--line);border-radius:7px;padding:9px 14px;background:white;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;white-space:normal}button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:white}button:disabled{opacity:.55;cursor:wait}button.danger{color:#a52d25}.choice{display:flex;align-items:center;gap:10px;font-weight:400;margin:12px 0;overflow-wrap:anywhere}input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{font-size:12px;background:#efedf5;border-radius:12px;padding:4px 9px;color:#605773}.sig{width:100%;height:190px;background:white;border:1px dashed #aaa4b7;border-radius:8px;touch-action:none;cursor:crosshair;display:block;margin:12px 0}.signature-image{max-width:100%;max-height:190px;border:1px solid var(--line);border-radius:8px;background:#fff;display:block}.question-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}.answer{border-bottom:1px solid var(--line);padding:8px 0}.answer:last-child{border:0}.answer p{margin:4px 0 8px}.empty{text-align:center;padding:35px 20px}.spacer{height:10px}.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 12px;padding-top:6px;border-top:2px solid var(--line)}.page-head h2{margin:0}.step-info{margin:0 0 12px;font-weight:600}.nav{margin:6px 0 24px}.page-title{margin:20px 0 6px;color:var(--accent)}
 .divider{border:0;border-top:1px solid var(--line);margin:14px 0}.q-title{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}.answer strong{display:block;white-space:pre-wrap;overflow-wrap:anywhere}.agree-line{display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:400;line-height:1.45;margin:4px 2px 14px;cursor:pointer}.agree-line input{width:14px;height:14px;margin:2px 0 0;flex:none}
+h3.q-title.rich{font-weight:500}
 button.bold-btn{font-weight:800;min-width:38px;padding:5px 12px}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:17px}main{margin-top:16px}.sig{height:170px}}@media print{header,footer,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;break-inside:avoid}body{background:white}}
 </style></head>
@@ -66,7 +67,7 @@ async function downloadCsv(f){
   try{
     const rows=await api('/api/admin/forms/'+f.id+'/responses');
     const out=[['ID respons','Waktu UTC','Nama','Jabatan/Divisi','Versi formulir','Halaman','Pertanyaan','Jawaban','Tanda tangan']];
-    for(const r of rows)for(const q of r.snapshot.fields)out.push([r.id,r.created,safeCsv(r.name||''),safeCsv(r.position||''),r.snapshot.revision,(q.page||0)+1,safeCsv(q.label),safeCsv(r.answers[q.id]??''),'Tersimpan (lihat di aplikasi)']);
+    for(const r of rows)for(const q of r.snapshot.fields)out.push([r.id,r.created,safeCsv(r.name||''),safeCsv(r.position||''),r.snapshot.revision,(q.page||0)+1,safeCsv(plain(q.label)),safeCsv(r.answers[q.id]??''),'Tersimpan (lihat di aplikasi)']);
     download('\ufeff'+out.map(r=>r.map(csvCell).join(',')).join('\r\n'),'jawaban.csv','text/csv;charset=utf-8');
   }catch(e){alert(e.message)}
 }
@@ -107,6 +108,19 @@ function adminHeader(){topActions.replaceChildren(btn('Keluar',async()=>{try{awa
 async function dashboard(){adminHeader();const forms=await api('/api/admin/forms');const nodes=forms.map(f=>card(el('div',{class:'bar'},el('h2',{},f.title),el('span',{class:'tag'},f.active?'Aktif':'Ditutup')),el('p',{class:'muted'},`${f.fields.length} pertanyaan · ${pageCountOf(f.fields)} halaman · ${f.count} jawaban`),actions(btn('Edit',()=>editor(f)),btn('Jawaban',()=>responses(f)),btn('Salin link',async()=>{const url=location.href.split('#')[0]+'#/f/'+f.id;try{await navigator.clipboard.writeText(url);alert('Link disalin.')}catch{prompt('Salin link formulir:',url)}}),el('a',{class:'btn',href:'#/f/'+f.id,target:'_blank',rel:'noopener'},'Buka formulir'))));setPage(el('div',{class:'bar'},el('div',{},el('h1',{},'Formulir saya'),el('span',{class:'muted'},'Kelola formulir dan respons.')),btn('+ Buat formulir',()=>editor(), 'primary')), backupBar(), ...(nodes.length?nodes:[el('div',{class:'card empty'},el('h2',{},'Belum ada formulir'),el('p',{},'Klik Buat formulir untuk memulai.'))]))}
 function pageOf(q){return q.page||0}
 function pageCountOf(fields){return Math.max(0,...fields.map(pageOf))+1}
+const plain=s=>String(s).replace(/\*\*([^*]+?)\*\*/g,'$1');
+function boldControl(ta,set){
+  function toggle(){
+    const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value,sel=v.slice(s,en);
+    let nv,cs,ce;
+    if(sel.length>=4&&sel.startsWith('**')&&sel.endsWith('**')){nv=v.slice(0,s)+sel.slice(2,-2)+v.slice(en);cs=s;ce=en-4}
+    else if(v.slice(s-2,s)==='**'&&v.slice(en,en+2)==='**'){nv=v.slice(0,s-2)+sel+v.slice(en+2);cs=s-2;ce=en-2}
+    else{nv=v.slice(0,s)+'**'+sel+'**'+v.slice(en);cs=s+2;ce=en+2}
+    ta.value=nv;set(nv);ta.focus();ta.setSelectionRange(cs,ce);
+  }
+  ta.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='b'){ev.preventDefault();toggle()}});
+  const b=btn('B',toggle,'bold-btn');b.title='Tebal (Ctrl+B)';return b;
+}
 function richText(s){const out=[],re=/\*\*([^*]+?)\*\*/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)out.push(s.slice(last,m.index));out.push(el('strong',{},m[1]));last=re.lastIndex}if(last<s.length)out.push(s.slice(last));return out}
 function editor(original){
   const model=original?JSON.parse(JSON.stringify(original)):{title:'',description:'',active:true,fields:[newField(0)]};
@@ -115,16 +129,7 @@ function editor(original){
   const list=el('div'),e=err();
   const title=el('input',{value:model.title,placeholder:'Contoh: Formulir Serah Terima Barang',maxLength:200,oninput:ev=>model.title=ev.target.value});
   const description=el('textarea',{value:model.description,placeholder:'Petunjuk pengisian (opsional)',maxLength:5000,oninput:ev=>model.description=ev.target.value,'aria-label':'Deskripsi'});
-  function toggleBold(){
-    const s=description.selectionStart,en=description.selectionEnd,v=description.value,sel=v.slice(s,en);
-    let nv,cs,ce;
-    if(sel.length>=4&&sel.startsWith('**')&&sel.endsWith('**')){nv=v.slice(0,s)+sel.slice(2,-2)+v.slice(en);cs=s;ce=en-4}
-    else if(v.slice(s-2,s)==='**'&&v.slice(en,en+2)==='**'){nv=v.slice(0,s-2)+sel+v.slice(en+2);cs=s-2;ce=en-2}
-    else{nv=v.slice(0,s)+'**'+sel+'**'+v.slice(en);cs=s+2;ce=en+2}
-    description.value=nv;model.description=nv;description.focus();description.setSelectionRange(cs,ce);
-  }
-  description.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='b'){ev.preventDefault();toggleBold()}});
-  const boldBtn=btn('B',toggleBold,'bold-btn');boldBtn.title='Tebal (Ctrl+B)';
+  const boldBtn=boldControl(description,v=>model.description=v);
   const active=el('input',{type:'checkbox',checked:model.active,onchange:ev=>model.active=ev.target.checked});
   const MAX_PAGES=10;
   function addQuestion(page){
@@ -161,13 +166,13 @@ function editor(original){
     renderFields();
   }
   function questionCard(f,number,pageSize,pos){
-    const label=el('textarea',{value:f.label,placeholder:'Tulis pertanyaan (tekan Enter untuk baris baru)',maxLength:5000,rows:4,style:'min-height:110px',oninput:ev=>f.label=ev.target.value});
+    const label=el('textarea',{value:f.label,placeholder:'Tulis pertanyaan (tekan Enter untuk baris baru)',maxLength:5000,rows:4,style:'min-height:110px','aria-label':'Pertanyaan',oninput:ev=>f.label=ev.target.value});
     const typ=el('select',{onchange:ev=>{f.type=ev.target.value;if(['radio','checkbox','select'].includes(f.type)&&f.options.length<2)f.options=['Pilihan 1','Pilihan 2'];renderFields()}},Object.entries(types).map(([k,v])=>el('option',{value:k,selected:k===f.type},v)));
     const req=el('input',{type:'checkbox',checked:f.required,onchange:ev=>f.required=ev.target.checked});
     const options=el('textarea',{value:f.options.join('\n'),placeholder:'Satu pilihan per baris',oninput:ev=>f.options=ev.target.value.split('\n')});
     return card(
       el('div',{class:'question-head'},el('h3',{},'Pertanyaan '+number),actions(btn('↑',()=>move(f,-1)),btn('↓',()=>move(f,1)),btn('Hapus',()=>removeQuestion(f),'danger'))),
-      inputLabel('Pertanyaan',label),inputLabel('Jenis jawaban',typ),
+      el('div',{class:'actions'},el('strong',{},'Pertanyaan'),boldControl(label,v=>f.label=v),el('span',{class:'muted'},'Blok teks lalu klik B, atau Ctrl+B')),label,inputLabel('Jenis jawaban',typ),
       ['radio','checkbox','select'].includes(f.type)?inputLabel('Pilihan jawaban (satu per baris)',options):null,
       el('label',{class:'choice'},req,'Wajib diisi'));
   }
@@ -213,13 +218,13 @@ async function respondent(fid){
       readers[q.id]=()=>q.type==='checkbox'?nodes.filter(n=>n.checked).map(n=>n.value):(nodes.find(n=>n.checked)?.value||'');
     }else{
       let n;
-      if(q.type==='select')n=el('select',{'aria-label':q.label},el('option',{value:''},'Pilih jawaban'),q.options.map(v=>el('option',{value:v},v)));
-      else if(q.type==='long')n=el('textarea',{placeholder:'Jawaban Anda',maxLength:10000,'aria-label':q.label});
-      else n=el('input',{type:q.type==='date'?'date':'text',placeholder:'Jawaban Anda',maxLength:10000,'aria-label':q.label});
+      if(q.type==='select')n=el('select',{'aria-label':plain(q.label)},el('option',{value:''},'Pilih jawaban'),q.options.map(v=>el('option',{value:v},v)));
+      else if(q.type==='long')n=el('textarea',{placeholder:'Jawaban Anda',maxLength:10000,'aria-label':plain(q.label)});
+      else n=el('input',{type:q.type==='date'?'date':'text',placeholder:'Jawaban Anda',maxLength:10000,'aria-label':plain(q.label)});
       controls=[n];
       readers[q.id]=()=>n.value;
     }
-    return card(el('h3',{class:'q-title'},q.label,q.required?el('span',{class:'required'},' *'):null),...controls);
+    return card(el('h3',{class:'q-title'+(/\*\*[^*]+?\*\*/.test(q.label)?' rich':'')},richText(q.label),q.required?el('span',{class:'required'},' *'):null),...controls);
   };
   const total=pageCountOf(f.fields);
   const nameInput=el('input',{type:'text',maxLength:200,placeholder:'Nama lengkap',autocomplete:'name','aria-label':'Nama'});
@@ -252,7 +257,7 @@ async function respondent(fid){
     if(p===0&&!positionInput.value.trim())return 'Jabatan/Divisi wajib diisi.';
     for(const q of pages[p].qs){
       const v=answerText(q);
-      if(q.required&&(!v.length||(typeof v==='string'&&!v.trim())))return 'Wajib diisi: '+q.label;
+      if(q.required&&(!v.length||(typeof v==='string'&&!v.trim())))return 'Wajib diisi: '+plain(q.label);
     }
     if(!pages[p].pad.valid())return 'Tanda tangan wajib diisi. Buat coretan pada kotak tanda tangan.';
     if(p===total-1&&!agree.checked)return 'Centang pernyataan bahwa data yang Anda isi adalah benar.';
@@ -304,7 +309,7 @@ async function responses(f){
         return card(el('div',{class:'bar'},el('h3',{},'Respons '+(rows.length-i)),el('span',{class:'muted'},formatDate(r.created))),
           r.name?el('p',{},'Nama: '+r.name):null,
           r.position?el('p',{},'Jabatan/Divisi: '+r.position):null,
-          first?el('p',{},first.label+': '+display(r.answers[first.id])):null,
+          first?el('p',{},plain(first.label)+': '+display(r.answers[first.id])):null,
           btn('Lihat detail & tanda tangan',()=>detail(f,r)));
       }):[card(el('p',{},'Belum ada jawaban. Bagikan link formulir untuk mulai.'))]));
   }catch(e){setPage(card(el('p',{class:'error'},e.message),btn('Kembali',dashboard)))}
@@ -318,7 +323,7 @@ function detail(f,r){
     if(total>1)blocks.push(el('h2',{class:'page-title'},'Halaman '+(p+1)));
     if(p===0&&r.name)blocks.push(el('div',{class:'answer'},el('strong',{},'Nama'),el('p',{},r.name)));
     if(p===0&&r.position)blocks.push(el('div',{class:'answer'},el('strong',{},'Jabatan/Divisi'),el('p',{},r.position)));
-    fields.filter(q=>pageOf(q)===p).forEach(q=>blocks.push(el('div',{class:'answer'},el('strong',{},q.label),el('p',{},display(r.answers[q.id])))));
+    fields.filter(q=>pageOf(q)===p).forEach(q=>blocks.push(el('div',{class:'answer'},el('strong',{},plain(q.label)),el('p',{},display(r.answers[q.id])))));
     blocks.push(el('h3',{},'Tanda tangan'+(total>1?' halaman '+(p+1):'')));
     if(sigs[p])blocks.push(el('img',{class:'signature-image',src:sigs[p],alt:'Tanda tangan responden halaman '+(p+1)}));
   }
