@@ -160,7 +160,7 @@ async function showLogin(){
 }
 
 const app=document.querySelector('#app'), topActions=document.querySelector('#top-actions');
-const PAGE_COLORS=[{accent:'#2563eb',tint:'#eaf1ff'},{accent:'#16a34a',tint:'#e8f6ec'},{accent:'#b88900',tint:'#fdf5d8'}];
+const PAGE_COLORS=[{accent:'#2563eb',tint:'#eaf1ff'},{accent:'#16a34a',tint:'#e8f6ec'},{accent:'#b88900',tint:'#fdf5d8'},{accent:'#7c3aed',tint:'#f1ebff'},{accent:'#db2777',tint:'#fde8f1'}];
 const pageColor=p=>PAGE_COLORS[p%PAGE_COLORS.length];
 const types={short:'Jawaban pendek',long:'Paragraf',radio:'Pilihan ganda',checkbox:'Kotak centang',select:'Dropdown',date:'Tanggal'};
 function el(tag,props={},...children){const x=document.createElement(tag);for(const [k,v] of Object.entries(props)){if(k==='class')x.className=v;else if(k.startsWith('on'))x.addEventListener(k.slice(2),v);else if(k==='text')x.textContent=v;else if(k in x)x[k]=v;else x.setAttribute(k,v)}for(const c of children.flat()){if(c!==null&&c!==undefined)x.append(c instanceof Node?c:document.createTextNode(String(c)))}return x}
