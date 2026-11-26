@@ -315,6 +315,10 @@ async function handler(req, res) {
       const rows = await sql`SELECT id, title, description, fields, active, revision FROM forms WHERE id = ${formId}`;
       const current = rows[0];
       if (!current) throw new HttpError(404, 'Formulir tidak ditemukan.');
+      if (req.method === 'DELETE' && !suffix) {
+        await sql`WITH removed AS (DELETE FROM responses WHERE form_id = ${formId}) DELETE FROM forms WHERE id = ${formId}`;
+        return send(res, 200, { ok: true });
+      }
       if (req.method === 'PUT' && !suffix) {
         const form = checkedForm(await readBody(req));
         await sql`UPDATE forms SET title = ${form.title}, admin_title = ${form.adminTitle}, description = ${form.description}, fields = ${JSON.stringify(form.fields)}::jsonb,
