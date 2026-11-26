@@ -33,7 +33,7 @@ function checkedForm(body) {
     if (!field || typeof field !== 'object' || Array.isArray(field)) throw new HttpError(400, 'Pertanyaan tidak valid.');
     const { id, label, type, required } = field;
     let options = field.options ?? [];
-    if (typeof id !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(id) || seen.has(id) || typeof label !== 'string' || !label.trim() || label.length > 500 || !TYPES.has(type) || typeof required !== 'boolean') {
+    if (typeof id !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(id) || seen.has(id) || typeof label !== 'string' || !label.trim() || label.length > 5000 || !TYPES.has(type) || typeof required !== 'boolean') {
       throw new HttpError(400, 'Periksa judul dan jenis pertanyaan.');
     }
     seen.add(id);
