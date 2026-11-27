@@ -701,8 +701,8 @@ async function respondent(fid){
     }else{
       let n;
       if(q.type==='select')n=el('select',{'aria-label':plain(q.label)},el('option',{value:''},'Pilih jawaban'),q.options.map(v=>el('option',{value:v},v)));
-      else if(q.type==='long')n=el('textarea',{placeholder:'Jawaban Anda',maxLength:10000,'aria-label':plain(q.label)});
-      else n=el('input',{type:q.type==='date'?'date':'text',placeholder:'Jawaban Anda',maxLength:10000,'aria-label':plain(q.label)});
+      else if(q.type==='long')n=el('textarea',{placeholder:'isilah hanya dengan angka (contoh: 100)',maxLength:10000,'aria-label':plain(q.label)});
+      else n=el('input',{type:q.type==='date'?'date':'text',placeholder:'isilah hanya dengan angka (contoh: 100)',maxLength:10000,'aria-label':plain(q.label)});
       controls=[n];
       readers[q.id]=()=>n.value;
     }
