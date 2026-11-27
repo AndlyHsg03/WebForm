@@ -69,13 +69,15 @@ function checkedForm(body) {
     if (!Number.isInteger(page) || page < 0 || page >= MAX_PAGES) throw new HttpError(400, `Halaman tidak valid (maksimal ${MAX_PAGES} halaman).`);
     const pageTitle = typeof field.pageTitle === 'string' ? field.pageTitle.trim().slice(0, 200) : '';
     const pageDescription = typeof field.pageDescription === 'string' ? field.pageDescription.slice(0, 5000) : '';
+    // Placeholder hanya berlaku untuk jawaban pendek, paragraf, dan dropdown.
+    const placeholder = ['short', 'long', 'select'].includes(type) && typeof field.placeholder === 'string' ? field.placeholder.trim().slice(0, 200) : '';
     let image = field.image;
     if (image !== undefined && image !== null && image !== '') {
       if (typeof image !== 'string' || !(/^[a-f0-9]{24}$/.test(image) || (image.startsWith('data:image/') && image.length <= 700000))) throw new HttpError(400, 'Gambar pertanyaan tidak valid atau terlalu besar.');
     } else {
       image = undefined;
     }
-    return { id, label: label.trim(), type, required: type === 'description' ? false : required, options, page, ...(image ? { image } : {}), ...(pageTitle ? { pageTitle } : {}), ...(pageDescription.trim() ? { pageDescription } : {}) };
+    return { id, label: label.trim(), type, required: type === 'description' ? false : required, options, page, ...(image ? { image } : {}), ...(pageTitle ? { pageTitle } : {}), ...(pageDescription.trim() ? { pageDescription } : {}), ...(placeholder ? { placeholder } : {}) };
   });
   const pageNumbers = cleanFields.map((field) => field.page);
   const pageCount = Math.max(...pageNumbers) + 1;
